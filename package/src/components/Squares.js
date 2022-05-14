@@ -4,10 +4,10 @@ import { COLUMNS } from '../consts';
 import { useChessboard } from '../context/chessboard-context';
 
 export function Squares({ children }) {
-  const { boardOrientation, boardWidth, customBoardStyle, id } = useChessboard();
+  const { boardOrientation, boardWidth, customBoardStyle } = useChessboard();
 
   return (
-    <div data-boardid={id} style={{ ...boardStyles(boardWidth), ...customBoardStyle }}>
+    <div style={{ ...boardStyles(boardWidth), ...customBoardStyle }}>
       {[...Array(8)].map((_, r) => {
         return (
           <div key={r.toString()} style={rowStyles(boardWidth)}>

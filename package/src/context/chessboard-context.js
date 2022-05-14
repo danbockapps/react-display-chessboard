@@ -10,8 +10,6 @@ import { convertPositionToObject, getPositionDifferences, isDifferentFromStart }
 // keep onSquareClick, but add onPieceClick to send both square and piece
 // this is because in the current ClickToMove example, if blacks turn to move, you can click on a White piece and then on a black piece thats out of reach, and it will try to make the move and then reset firstClick
 
-// Animation on premove? - only set manual drop to false in useEffect if not attempting successful premove
-
 // try DisplayBoard again
 
 export const ChessboardContext = React.createContext();
@@ -23,7 +21,6 @@ export const ChessboardProvider = forwardRef(
     {
       animationDuration,
       areArrowsAllowed,
-      arePiecesDraggable,
       arePremovesAllowed,
       boardOrientation,
       boardWidth,
@@ -32,23 +29,15 @@ export const ChessboardProvider = forwardRef(
       customArrowColor,
       customBoardStyle,
       customDarkSquareStyle,
-      customDropSquareStyle,
       customLightSquareStyle,
       customPieces,
       customPremoveDarkSquareStyle,
       customPremoveLightSquareStyle,
       customSquareStyles,
-      dropOffBoardAction,
-      id,
-      isDraggablePiece,
       getPositionObject,
-      onDragOverSquare,
       onMouseOutSquare,
       onMouseOverSquare,
       onPieceClick,
-      onPieceDragBegin,
-      onPieceDragEnd,
-      onPieceDrop,
       onSquareClick,
       onSquareRightClick,
       position,
@@ -80,9 +69,6 @@ export const ChessboardProvider = forwardRef(
     // chess pieces/styling
     const [chessPieces, setChessPieces] = useState({ ...defaultPieces, ...customPieces });
 
-    // whether the last move was a manual drop or not
-    const [manualDrop, setManualDrop] = useState(false);
-
     // the most recent timeout whilst waiting for animation to complete
     const [previousTimeout, setPreviousTimeout] = useState(undefined);
 
@@ -113,42 +99,13 @@ export const ChessboardProvider = forwardRef(
       if (waitingForAnimation) {
         setCurrentPosition(newPosition);
         setWaitingForAnimation(false);
-        arePremovesAllowed && attemptPremove(newPieceColour);
         if (previousTimeout) {
           clearTimeout(previousTimeout);
         }
       } else {
         // move was made using drag and drop
-        if (manualDrop) {
-          setCurrentPosition(newPosition);
-          setWaitingForAnimation(false);
-          arePremovesAllowed && attemptPremove(newPieceColour);
-        } else {
-          // move was made by external position change
-
-          // if position === start then don't override newPieceColour
-          // needs isDifferentFromStart in scenario where premoves have been cleared upon board reset but first move is made by computer, the last move colour would need to be updated
-          if (isDifferentFromStart(newPosition) && lastPieceColour !== undefined) {
-            setLastPieceColour(newPieceColour);
-          } else {
-            // position === start, likely a board reset
-            setLastPieceColour(undefined);
-          }
-          setPositionDifferences(differences);
-
-          // animate external move
-          setWaitingForAnimation(true);
-          const newTimeout = setTimeout(() => {
-            setCurrentPosition(newPosition);
-            setWaitingForAnimation(false);
-            arePremovesAllowed && attemptPremove(newPieceColour);
-          }, animationDuration);
-          setPreviousTimeout(newTimeout);
-        }
       }
 
-      // reset manual drop, ready for next move to be made by user or external
-      setManualDrop(false);
       // inform latest position information
       getPositionObject(newPosition);
       // clear arrows
@@ -164,86 +121,6 @@ export const ChessboardProvider = forwardRef(
     useEffect(() => {
       setArrows(customArrows);
     }, [customArrows]);
-
-    // handle drop position change
-    function handleSetPosition(sourceSq, targetSq, piece) {
-      // if dropped back down, don't do anything
-      if (sourceSq === targetSq) {
-        return;
-      }
-
-      clearArrows();
-
-      // if second move is made for same colour, or there are still premoves queued, then this move needs to be added to premove queue instead of played
-      // premoves length check for colour is added in because white could make 3 premoves, and then black responds to the first move (changing the last piece colour) and then white pre-moves again
-      if (
-        (arePremovesAllowed && waitingForAnimation) ||
-        (arePremovesAllowed &&
-          (lastPieceColour === piece[0] || premovesRef.current.filter((p) => p.piece[0] === piece[0]).length > 0))
-      ) {
-        const oldPremoves = [...premovesRef.current];
-        oldPremoves.push({ sourceSq, targetSq, piece });
-        premovesRef.current = oldPremoves;
-        setPremoves([...oldPremoves]);
-        return;
-      }
-
-      // if transitioning, don't allow new drop
-      if (!arePremovesAllowed && waitingForAnimation) return;
-
-      const newOnDropPosition = { ...currentPosition };
-
-      setManualDrop(true);
-      setLastPieceColour(piece[0]);
-
-      // if onPieceDrop function provided, execute it, position must be updated externally and captured by useEffect above for this move to show on board
-      if (onPieceDrop.length) {
-        const isValidMove = onPieceDrop(sourceSq, targetSq, piece);
-        if (!isValidMove) clearPremoves();
-      } else {
-        // delete if dropping off board
-        if (dropOffBoardAction === 'trash' && !targetSq) {
-          delete newOnDropPosition[sourceSq];
-        }
-
-        // delete source piece if not dropping from spare piece
-        if (sourceSq !== 'spare') {
-          delete newOnDropPosition[sourceSq];
-        }
-
-        // add piece in new position
-        newOnDropPosition[targetSq] = piece;
-        setCurrentPosition(newOnDropPosition);
-      }
-
-      // inform latest position information
-      getPositionObject(newOnDropPosition);
-    }
-
-    function attemptPremove(newPieceColour) {
-      if (premovesRef.current.length === 0) return;
-
-      // get current value of premove as this is called in a timeout so value may have changed since timeout was set
-      const premove = premovesRef.current[0];
-
-      // if premove is a differing colour to last move made, then this move can be made
-      if (premove.piece[0] !== undefined && premove.piece[0] !== newPieceColour && onPieceDrop.length) {
-        setLastPieceColour(premove.piece[0]);
-        setManualDrop(true); // pre-move doesn't need animation
-        const isValidMove = onPieceDrop(premove.sourceSq, premove.targetSq, premove.piece);
-
-        // premove was successful and can be removed from queue
-        if (isValidMove) {
-          const oldPremoves = [...premovesRef.current];
-          oldPremoves.shift();
-          premovesRef.current = oldPremoves;
-          setPremoves([...oldPremoves]);
-        } else {
-          // premove wasn't successful, clear premove queue
-          clearPremoves();
-        }
-      }
-    }
 
     function clearPremoves(clearLastPieceColour = true) {
       // don't clear when right clicking to clear, otherwise you won't be able to premove again before next go
@@ -296,29 +173,20 @@ export const ChessboardProvider = forwardRef(
       <ChessboardContext.Provider
         value={{
           animationDuration,
-          arePiecesDraggable,
           arePremovesAllowed,
           boardOrientation,
           boardWidth,
           customArrowColor,
           customBoardStyle,
           customDarkSquareStyle,
-          customDropSquareStyle,
           customLightSquareStyle,
           customPremoveDarkSquareStyle,
           customPremoveLightSquareStyle,
           customSquareStyles,
-          dropOffBoardAction,
-          id,
-          isDraggablePiece,
           getPositionObject,
-          onDragOverSquare,
           onMouseOutSquare,
           onMouseOverSquare,
           onPieceClick,
-          onPieceDragBegin,
-          onPieceDragEnd,
-          onPieceDrop,
           onSquareClick,
           onSquareRightClick,
           showBoardNotation,
@@ -331,16 +199,13 @@ export const ChessboardProvider = forwardRef(
           clearCurrentRightClickDown,
           clearPremoves,
           currentPosition,
-          handleSetPosition,
           lastPieceColour,
-          manualDrop,
           onRightClickDown,
           onRightClickUp,
           positionDifferences,
           premoves,
           setChessPieces,
           setCurrentPosition,
-          setManualDrop,
           waitingForAnimation
         }}
       >

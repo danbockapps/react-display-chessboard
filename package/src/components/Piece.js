@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useDrag } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 
 import { useChessboard } from '../context/chessboard-context';
@@ -7,17 +6,11 @@ import { useChessboard } from '../context/chessboard-context';
 export function Piece({ piece, square, squares, isPremovedPiece = false }) {
   const {
     animationDuration,
-    arePiecesDraggable,
     arePremovesAllowed,
     boardWidth,
-    id,
-    isDraggablePiece,
     onPieceClick,
-    onPieceDragBegin,
-    onPieceDragEnd,
     premoves,
     chessPieces,
-    dropTarget,
     positionDifferences,
     waitingForAnimation,
     currentPosition
@@ -26,38 +19,8 @@ export function Piece({ piece, square, squares, isPremovedPiece = false }) {
   const [pieceStyle, setPieceStyle] = useState({
     opacity: 1,
     zIndex: 5,
-    touchAction: 'none',
-    cursor: arePiecesDraggable && isDraggablePiece({ piece, sourceSquare: square }) ? '-webkit-grab' : 'default'
+    touchAction: 'none'
   });
-
-  const [{ canDrag, isDragging }, drag, dragPreview] = useDrag(
-    () => ({
-      type: 'piece',
-      item: () => {
-        onPieceDragBegin(piece, square);
-        return { piece, square, id };
-      },
-      end: () => onPieceDragEnd(piece, square),
-      collect: (monitor) => ({
-        canDrag: isDraggablePiece({ piece, sourceSquare: square }),
-        isDragging: !!monitor.isDragging()
-      })
-    }),
-    [piece, square, currentPosition, id]
-  );
-
-  // hide the default preview
-  useEffect(() => {
-    dragPreview(getEmptyImage(), { captureDraggingState: true });
-  }, []);
-
-  // hide piece on drag
-  useEffect(() => {
-    setPieceStyle((oldPieceStyle) => ({
-      ...oldPieceStyle,
-      opacity: isDragging ? 0 : 1
-    }));
-  }, [isDragging]);
 
   // hide piece on matching premoves
   useEffect(() => {
@@ -118,14 +81,6 @@ export function Piece({ piece, square, squares, isPremovedPiece = false }) {
     }
   }, [currentPosition]);
 
-  // update is piece draggable
-  useEffect(() => {
-    setPieceStyle((oldPieceStyle) => ({
-      ...oldPieceStyle,
-      cursor: arePiecesDraggable && isDraggablePiece({ piece, sourceSquare: square }) ? '-webkit-grab' : 'default'
-    }));
-  }, [square, currentPosition, arePiecesDraggable]);
-
   function getSingleSquareCoordinates(square) {
     return { sourceSq: squares[square] };
   }
@@ -138,15 +93,10 @@ export function Piece({ piece, square, squares, isPremovedPiece = false }) {
   }
 
   return (
-    <div
-      ref={arePiecesDraggable ? (canDrag ? drag : null) : null}
-      onClick={() => onPieceClick(piece)}
-      style={pieceStyle}
-    >
+    <div onClick={() => onPieceClick(piece)} style={pieceStyle}>
       {typeof chessPieces[piece] === 'function' ? (
         chessPieces[piece]({
           squareWidth: boardWidth / 8,
-          isDragging,
           droppedPiece: dropTarget?.piece,
           targetSquare: dropTarget?.target,
           sourceSquare: dropTarget?.source

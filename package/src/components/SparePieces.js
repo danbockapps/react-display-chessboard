@@ -13,7 +13,7 @@ export function SparePieces({ placement }) {
     <div style={spareStyles(boardWidth)}>
       {spares.map((p) => (
         <div key={p}>
-          <Piece piece={p} square={'spare'} draggable={true} />
+          <Piece piece={p} square={'spare'} />
         </div>
       ))}
     </div>

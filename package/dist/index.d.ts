@@ -70,9 +70,7 @@ type Square =
 type Pieces = 'wP' | 'wB' | 'wN' | 'wR' | 'wQ' | 'wK' | 'bP' | 'bB' | 'bN' | 'bR' | 'bQ' | 'bK';
 
 interface CustomPieceFnArgs {
-  isDragging: boolean;
   squareWidth: number;
-  droppedPiece: Pieces;
   targetSquare: Square;
   sourceSquare: Square;
 }
@@ -100,10 +98,6 @@ interface ChessBoardProps {
    * Whether or not arrows can be drawn with right click and dragging.
    */
   areArrowsAllowed?: boolean;
-  /**
-   * Whether or not all pieces are draggable.
-   */
-  arePiecesDraggable?: boolean;
   /**
    * Whether or not premoves are allowed.
    */
@@ -145,15 +139,11 @@ interface ChessBoardProps {
    */
   customDndBackendOptions?: unknown;
   /**
-   * Custom drop square style object (Square being hovered over with dragged piece).
-   */
-  customDropSquareStyle?: CSSProperties;
-  /**
    * Custom light square style object.
    */
   customLightSquareStyle?: CSSProperties;
   /**
-   * Custom pieces object where each key must match a corresponding chess piece (wP, wB, wN, wR, wQ, wK, bP, bB, bN, bR, bQ, bK). The value of each piece is a function that takes in some optional arguments to use and must return JSX to render. e.g. { wK: ({ isDragging: boolean, squareWidth: number, droppedPiece: string, targetSquare: string, sourceSquare: string }) => jsx }.
+   * Custom pieces object where each key must match a corresponding chess piece (wP, wB, wN, wR, wQ, wK, bP, bB, bN, bR, bQ, bK). The value of each piece is a function that takes in some optional arguments to use and must return JSX to render. e.g. { wK: ({ squareWidth: number, targetSquare: string, sourceSquare: string }) => jsx }.
    */
   customPieces?: CustomPieces;
   /**
@@ -169,21 +159,10 @@ interface ChessBoardProps {
    */
   customSquareStyles?: CustomSquareStyles;
   /**
-   * Board identifier, necessary if more than one board is mounted for drag and drop.
-   */
-  id?: number;
-  /**
-   * Function called when a piece drag is attempted. Returns if piece is draggable.
-   */
-  isDraggablePiece?: (args: { piece: Pieces; sourceSquare: Square }) => boolean;
-  /**
    * User function that receives current position object when position changes.
    */
   getPositionObject?: (currentPosition: CurrentPosition) => any;
-  /**
-   * User function that is run when piece is dragged over a square.
-   */
-  onDragOverSquare?: (square: Square) => any;
+
   /**
    * User function that is run when mouse leaves a square.
    */
@@ -196,18 +175,6 @@ interface ChessBoardProps {
    * User function that is run when piece is clicked.
    */
   onPieceClick?: (piece: Pieces) => any;
-  /**
-   * User function that is run when piece is grabbed to start dragging.
-   */
-  onPieceDragBegin?: (piece: Pieces, sourceSquare: Square) => any;
-  /**
-   * User function that is run when piece is let go after dragging.
-   */
-  onPieceDragEnd?: (piece: Pieces, sourceSquare: Square) => any;
-  /**
-   * User function that is run when piece is dropped on a square. Must return whether the move was successful or not.
-   */
-  onPieceDrop?: (sourceSquare: Square, targetSquare: Square, piece: Pieces) => boolean;
   /**
    * User function that is run when a square is clicked.
    */
@@ -228,10 +195,6 @@ interface ChessBoardProps {
    * Whether or not to show the file and rank co-ordinates (a..h, 1..8).
    */
   showBoardNotation?: boolean;
-  /**
-   * Whether or not to center dragged pieces on the mouse cursor.
-   */
-  snapToCursor?: boolean;
 }
 declare function Chessboard(props: ChessBoardProps): ReactElement;
 

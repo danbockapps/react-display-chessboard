@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import { useDrop } from 'react-dnd';
 
 import { useChessboard } from '../context/chessboard-context';
 
@@ -12,33 +11,18 @@ export function Square({ square, squareColor, setSquares, squareHasPremove, chil
     currentPosition,
     customBoardStyle,
     customDarkSquareStyle,
-    customDropSquareStyle,
     customLightSquareStyle,
     customPremoveDarkSquareStyle,
     customPremoveLightSquareStyle,
     customSquareStyles,
-    handleSetPosition,
     lastPieceColour,
-    onDragOverSquare,
     onMouseOutSquare,
     onMouseOverSquare,
-    onPieceDrop,
     onRightClickDown,
     onRightClickUp,
     onSquareClick,
     waitingForAnimation
   } = useChessboard();
-
-  const [{ isOver }, drop] = useDrop(
-    () => ({
-      accept: 'piece',
-      drop: (item) => handleSetPosition(item.square, square, item.piece),
-      collect: (monitor) => ({
-        isOver: !!monitor.isOver()
-      })
-    }),
-    [square, currentPosition, onPieceDrop, waitingForAnimation, lastPieceColour]
-  );
 
   useEffect(() => {
     const { x, y } = squareRef.current.getBoundingClientRect();
@@ -48,13 +32,11 @@ export function Square({ square, squareColor, setSquares, squareHasPremove, chil
   const defaultSquareStyle = {
     ...borderRadius(customBoardStyle, square, boardOrientation),
     ...(squareColor === 'black' ? customDarkSquareStyle : customLightSquareStyle),
-    ...(squareHasPremove && (squareColor === 'black' ? customPremoveDarkSquareStyle : customPremoveLightSquareStyle)),
-    ...(isOver && customDropSquareStyle)
+    ...(squareHasPremove && (squareColor === 'black' ? customPremoveDarkSquareStyle : customPremoveLightSquareStyle))
   };
 
   return (
     <div
-      ref={drop}
       style={defaultSquareStyle}
       data-square-color={squareColor}
       data-square={square}
@@ -66,7 +48,6 @@ export function Square({ square, squareColor, setSquares, squareHasPremove, chil
       onMouseUp={(e) => {
         if (e.button === 2) onRightClickUp(square);
       }}
-      onDragEnter={() => onDragOverSquare(square)}
       onClick={() => {
         onSquareClick(square);
         clearArrows();
