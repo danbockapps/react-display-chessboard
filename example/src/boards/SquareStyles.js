@@ -72,7 +72,6 @@ export default function SquareStyles({ boardWidth }) {
   return (
     <div>
       <Chessboard
-        arePremovesAllowed={true}
         animationDuration={200}
         boardWidth={boardWidth}
         position={game.fen()}
@@ -97,7 +96,6 @@ export default function SquareStyles({ boardWidth }) {
           safeGameMutate(game => {
             game.reset()
           })
-          chessboardRef.current.clearPremoves()
           setMoveSquares({})
           setRightClickedSquares({})
         }}
@@ -110,7 +108,6 @@ export default function SquareStyles({ boardWidth }) {
           safeGameMutate(game => {
             game.undo()
           })
-          chessboardRef.current.clearPremoves()
           setMoveSquares({})
         }}
       >

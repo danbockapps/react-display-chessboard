@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 
 import { useChessboard } from '../context/chessboard-context';
 
-export function Square({ square, squareColor, setSquares, squareHasPremove, children }) {
+export function Square({ square, squareColor, setSquares, children }) {
   const squareRef = useRef();
   const {
     boardWidth,
@@ -12,8 +12,6 @@ export function Square({ square, squareColor, setSquares, squareHasPremove, chil
     customBoardStyle,
     customDarkSquareStyle,
     customLightSquareStyle,
-    customPremoveDarkSquareStyle,
-    customPremoveLightSquareStyle,
     customSquareStyles,
     lastPieceColour,
     onMouseOutSquare,
@@ -31,8 +29,7 @@ export function Square({ square, squareColor, setSquares, squareHasPremove, chil
 
   const defaultSquareStyle = {
     ...borderRadius(customBoardStyle, square, boardOrientation),
-    ...(squareColor === 'black' ? customDarkSquareStyle : customLightSquareStyle),
-    ...(squareHasPremove && (squareColor === 'black' ? customPremoveDarkSquareStyle : customPremoveLightSquareStyle))
+    ...(squareColor === 'black' ? customDarkSquareStyle : customLightSquareStyle)
   };
 
   return (
@@ -60,8 +57,7 @@ export function Square({ square, squareColor, setSquares, squareHasPremove, chil
         ref={squareRef}
         style={{
           ...size(boardWidth),
-          ...center,
-          ...(!squareHasPremove && customSquareStyles?.[square])
+          ...center
         }}
       >
         {children}

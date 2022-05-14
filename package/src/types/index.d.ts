@@ -99,10 +99,6 @@ export interface ChessBoardProps {
    */
   areArrowsAllowed?: boolean;
   /**
-   * Whether or not premoves are allowed.
-   */
-  arePremovesAllowed?: boolean;
-  /**
    * The orientation of the board, the chosen colour will be at the bottom of the board.
    */
   boardOrientation?: 'white' | 'black';
@@ -110,10 +106,6 @@ export interface ChessBoardProps {
    * The width of the board in pixels.
    */
   boardWidth?: number;
-  /**
-   * If premoves are allowed, whether or not to clear the premove queue on right click.
-   */
-  clearPremovesOnRightClick?: boolean;
   /**
    * Array of custom arrows to draw on the board. Each arrow within the array must be an array of length 2 with strings denoting the from and to square to draw the arrow e.g. [ ['a3', 'a5'], ['g1', 'f3'] ].
    */
@@ -146,14 +138,6 @@ export interface ChessBoardProps {
    * Custom pieces object where each key must match a corresponding chess piece (wP, wB, wN, wR, wQ, wK, bP, bB, bN, bR, bQ, bK). The value of each piece is a function that takes in some optional arguments to use and must return JSX to render. e.g. { wK: ({ squareWidth: number, targetSquare: string, sourceSquare: string }) => jsx }.
    */
   customPieces?: CustomPieces;
-  /**
-   * Custom premove dark square style object.
-   */
-  customPremoveDarkSquareStyle?: CSSProperties;
-  /**
-   * Custom premove light square style object.
-   */
-  customPremoveLightSquareStyle?: CSSProperties;
   /**
    * Custom styles for all squares.
    */

@@ -4,7 +4,6 @@ import Chess from 'chess.js'
 import { Chessboard } from 'react-chessboard'
 
 export default function PlayVsPlay({ boardWidth }) {
-  const chessboardRef = useRef()
   const [game, setGame] = useState(new Chess())
 
   function safeGameMutate(modify) {
@@ -25,7 +24,6 @@ export default function PlayVsPlay({ boardWidth }) {
           borderRadius: '4px',
           boxShadow: '0 5px 15px rgba(0, 0, 0, 0.5)',
         }}
-        ref={chessboardRef}
       />
       <button
         className='rc-button'
@@ -33,7 +31,6 @@ export default function PlayVsPlay({ boardWidth }) {
           safeGameMutate(game => {
             game.reset()
           })
-          chessboardRef.current.clearPremoves()
         }}
       >
         reset
@@ -44,7 +41,6 @@ export default function PlayVsPlay({ boardWidth }) {
           safeGameMutate(game => {
             game.undo()
           })
-          chessboardRef.current.clearPremoves()
         }}
       >
         undo

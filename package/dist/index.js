@@ -2272,10 +2272,8 @@ const COLUMNS = 'abcdefgh'.split('');
 const chessboardDefaultProps = {
   animationDuration: 300,
   areArrowsAllowed: true,
-  arePremovesAllowed: false,
   boardOrientation: 'white',
   boardWidth: 560,
-  clearPremovesOnRightClick: true,
   customArrows: [],
   customArrowColor: 'rgb(255,170,0)',
   customBoardStyle: {},
@@ -2288,14 +2286,7 @@ const chessboardDefaultProps = {
     backgroundColor: '#F0D9B5'
   },
   customPieces: {},
-  customPremoveDarkSquareStyle: {
-    backgroundColor: '#A42323'
-  },
-  customPremoveLightSquareStyle: {
-    backgroundColor: '#BD2828'
-  },
   customSquareStyles: {},
-  id: 0,
   getPositionObject: () => {},
   onMouseOutSquare: () => {},
   onMouseOverSquare: () => {},
@@ -3083,18 +3074,14 @@ const useChessboard = () => React.useContext(ChessboardContext);
 const ChessboardProvider = /*#__PURE__*/React.forwardRef(({
   animationDuration,
   areArrowsAllowed,
-  arePremovesAllowed,
   boardOrientation,
   boardWidth,
-  clearPremovesOnRightClick,
   customArrows,
   customArrowColor,
   customBoardStyle,
   customDarkSquareStyle,
   customLightSquareStyle,
   customPieces,
-  customPremoveDarkSquareStyle,
-  customPremoveLightSquareStyle,
   customSquareStyles,
   getPositionObject,
   onMouseOutSquare,
@@ -3113,11 +3100,7 @@ const ChessboardProvider = /*#__PURE__*/React.forwardRef(({
 
   const [positionDifferences, setPositionDifferences] = React.useState({}); // colour of last piece moved to determine if premoving
 
-  const [lastPieceColour, setLastPieceColour] = React.useState(undefined); // current premoves
-
-  const [premoves, setPremoves] = React.useState([]); // ref used to access current value during timeouts (closures)
-
-  const premovesRef = React.useRef(premoves); // current right mouse down square
+  const [lastPieceColour, setLastPieceColour] = React.useState(undefined); // current right mouse down square
 
   const [currentRightClickDown, setCurrentRightClickDown] = React.useState(); // current arrows
 
@@ -3129,14 +3112,7 @@ const ChessboardProvider = /*#__PURE__*/React.forwardRef(({
 
   const [previousTimeout, setPreviousTimeout] = React.useState(undefined); // if currently waiting for an animation to finish
 
-  const [waitingForAnimation, setWaitingForAnimation] = React.useState(false); // open clearPremoves() to allow user to call on undo/reset/whenever
-
-  React.useImperativeHandle(ref, () => ({
-    clearPremoves() {
-      clearPremoves();
-    }
-
-  })); // handle custom pieces change
+  const [waitingForAnimation, setWaitingForAnimation] = React.useState(false); // handle custom pieces change
 
   React.useEffect(() => {
     setChessPieces({ ...defaultPieces,
@@ -3175,13 +3151,6 @@ const ChessboardProvider = /*#__PURE__*/React.forwardRef(({
     setArrows(customArrows);
   }, [customArrows]);
 
-  function clearPremoves(clearLastPieceColour = true) {
-    // don't clear when right clicking to clear, otherwise you won't be able to premove again before next go
-    if (clearLastPieceColour) setLastPieceColour(undefined);
-    premovesRef.current = [];
-    setPremoves([]);
-  }
-
   function onRightClickDown(square) {
     setCurrentRightClickDown(square);
   }
@@ -3190,10 +3159,9 @@ const ChessboardProvider = /*#__PURE__*/React.forwardRef(({
     if (!areArrowsAllowed) return;
 
     if (currentRightClickDown) {
-      // same square, don't draw an arrow, but do clear premoves and run onSquareRightClick
+      // same square, don't draw an arrow
       if (currentRightClickDown === square) {
         setCurrentRightClickDown(null);
-        clearPremovesOnRightClick && clearPremoves(false);
         onSquareRightClick(square);
         return;
       } // if arrow already exists then it needs to be removed
@@ -3226,15 +3194,12 @@ const ChessboardProvider = /*#__PURE__*/React.forwardRef(({
   return /*#__PURE__*/jsxRuntime.exports.jsx(ChessboardContext.Provider, {
     value: {
       animationDuration,
-      arePremovesAllowed,
       boardOrientation,
       boardWidth,
       customArrowColor,
       customBoardStyle,
       customDarkSquareStyle,
       customLightSquareStyle,
-      customPremoveDarkSquareStyle,
-      customPremoveLightSquareStyle,
       customSquareStyles,
       getPositionObject,
       onMouseOutSquare,
@@ -3249,13 +3214,11 @@ const ChessboardProvider = /*#__PURE__*/React.forwardRef(({
       chessPieces,
       clearArrows,
       clearCurrentRightClickDown,
-      clearPremoves,
       currentPosition,
       lastPieceColour,
       onRightClickDown,
       onRightClickUp,
       positionDifferences,
-      premoves,
       setChessPieces,
       setCurrentPosition,
       waitingForAnimation
@@ -3371,17 +3334,14 @@ const notationStyle = {
 function Piece({
   piece,
   square,
-  squares,
-  isPremovedPiece = false
+  squares
 }) {
   var _dropTarget, _dropTarget2, _dropTarget3;
 
   const {
     animationDuration,
-    arePremovesAllowed,
     boardWidth,
     onPieceClick,
-    premoves,
     chessPieces,
     positionDifferences,
     waitingForAnimation,
@@ -3391,22 +3351,7 @@ function Piece({
     opacity: 1,
     zIndex: 5,
     touchAction: 'none'
-  }); // hide piece on matching premoves
-
-  React.useEffect(() => {
-    // if premoves aren't allowed, don't waste time on calculations
-    if (!arePremovesAllowed) return;
-    let hidePiece = false; // side effect: if piece moves into pre-moved square, its hidden
-    // if there are any premove targets on this square, hide the piece underneath
-
-    if (!isPremovedPiece && premoves.find(p => p.targetSq === square)) hidePiece = true; // if sourceSq === sq and piece matches then this piece has been pre-moved elsewhere?
-
-    if (premoves.find(p => p.sourceSq === square && p.piece === piece)) hidePiece = true; // TODO: If a premoved piece returns to a premoved square, it will hide (e1, e2, e1)
-
-    setPieceStyle(oldPieceStyle => ({ ...oldPieceStyle,
-      display: hidePiece ? 'none' : 'unset'
-    }));
-  }, [currentPosition, premoves]); // new move has come in
+  }); // new move has come in
   // if waiting for animation, then animation has started and we can perform animation
   // we need to head towards where we need to go, we are the source, we are heading towards the target
 
@@ -3417,9 +3362,9 @@ function Piece({
 
     if (!positionDifferences.added) return; // check if piece matches or if removed piece was a pawn and new square is on 1st or 8th rank (promotion)
 
-    const newSquare = Object.entries(positionDifferences.added).find(([s, p]) => p === removedPiece || (removedPiece === null || removedPiece === void 0 ? void 0 : removedPiece[1]) === 'P' && (s[1] === '1' || s[1] === '8')); // we can perform animation if our square was in removed, AND the matching piece is in added AND this isn't a premoved piece
+    const newSquare = Object.entries(positionDifferences.added).find(([s, p]) => p === removedPiece || (removedPiece === null || removedPiece === void 0 ? void 0 : removedPiece[1]) === 'P' && (s[1] === '1' || s[1] === '8')); // we can perform animation if our square was in removed, AND the matching piece is in added
 
-    if (waitingForAnimation && removedPiece && newSquare && !isPremovedPiece) {
+    if (waitingForAnimation && removedPiece && newSquare) {
       const {
         sourceSq,
         targetSq
@@ -3484,7 +3429,6 @@ function Square({
   square,
   squareColor,
   setSquares,
-  squareHasPremove,
   children
 }) {
   const squareRef = React.useRef();
@@ -3496,8 +3440,6 @@ function Square({
     customBoardStyle,
     customDarkSquareStyle,
     customLightSquareStyle,
-    customPremoveDarkSquareStyle,
-    customPremoveLightSquareStyle,
     customSquareStyles,
     lastPieceColour,
     onMouseOutSquare,
@@ -3520,8 +3462,7 @@ function Square({
     }));
   }, [boardWidth, boardOrientation]);
   const defaultSquareStyle = { ...borderRadius(customBoardStyle, square, boardOrientation),
-    ...(squareColor === 'black' ? customDarkSquareStyle : customLightSquareStyle),
-    ...(squareHasPremove && (squareColor === 'black' ? customPremoveDarkSquareStyle : customPremoveLightSquareStyle))
+    ...(squareColor === 'black' ? customDarkSquareStyle : customLightSquareStyle)
   };
   return /*#__PURE__*/jsxRuntime.exports.jsx("div", {
     style: defaultSquareStyle,
@@ -3545,8 +3486,7 @@ function Square({
     children: /*#__PURE__*/jsxRuntime.exports.jsx("div", {
       ref: squareRef,
       style: { ...size(boardWidth),
-        ...center,
-        ...(!squareHasPremove && (customSquareStyles === null || customSquareStyles === void 0 ? void 0 : customSquareStyles[square]))
+        ...center
       },
       children: children
     })
@@ -3717,8 +3657,7 @@ function Board() {
     clearCurrentRightClickDown,
     customArrowColor,
     showBoardNotation,
-    currentPosition,
-    premoves
+    currentPosition
   } = useChessboard();
   React.useEffect(() => {
     function handleClickOutside(event) {
@@ -3744,20 +3683,12 @@ function Board() {
         col,
         row
       }) => {
-        const squareHasPremove = premoves.find(p => p.sourceSq === square || p.targetSq === square);
-        const squareHasPremoveTarget = premoves.find(p => p.targetSq === square);
         return /*#__PURE__*/jsxRuntime.exports.jsxs(Square, {
           square: square,
           squareColor: squareColor,
           setSquares: setSquares,
-          squareHasPremove: squareHasPremove,
           children: [currentPosition[square] && /*#__PURE__*/jsxRuntime.exports.jsx(Piece, {
             piece: currentPosition[square],
-            square: square,
-            squares: squares
-          }), squareHasPremoveTarget && /*#__PURE__*/jsxRuntime.exports.jsx(Piece, {
-            isPremovedPiece: true,
-            piece: squareHasPremoveTarget.piece,
             square: square,
             squares: squares
           }), showBoardNotation && /*#__PURE__*/jsxRuntime.exports.jsx(Notation, {

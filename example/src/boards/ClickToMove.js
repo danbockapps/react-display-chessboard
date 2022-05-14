@@ -4,7 +4,6 @@ import Chess from 'chess.js'
 import { Chessboard } from 'react-chessboard'
 
 export default function ClickToMove({ boardWidth }) {
-  const chessboardRef = useRef()
   const [game, setGame] = useState(new Chess())
 
   const [moveFrom, setMoveFrom] = useState('')
@@ -122,7 +121,6 @@ export default function ClickToMove({ boardWidth }) {
           ...optionSquares,
           ...rightClickedSquares,
         }}
-        ref={chessboardRef}
       />
       <button
         className='rc-button'
@@ -130,7 +128,6 @@ export default function ClickToMove({ boardWidth }) {
           safeGameMutate(game => {
             game.reset()
           })
-          chessboardRef.current.clearPremoves()
           setMoveSquares({})
           setRightClickedSquares({})
         }}
@@ -143,7 +140,6 @@ export default function ClickToMove({ boardWidth }) {
           safeGameMutate(game => {
             game.undo()
           })
-          chessboardRef.current.clearPremoves()
           setMoveSquares({})
         }}
       >

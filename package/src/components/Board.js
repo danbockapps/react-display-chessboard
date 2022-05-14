@@ -19,8 +19,7 @@ export function Board() {
     clearCurrentRightClickDown,
     customArrowColor,
     showBoardNotation,
-    currentPosition,
-    premoves
+    currentPosition
   } = useChessboard();
 
   useEffect(() => {
@@ -40,20 +39,9 @@ export function Board() {
     <div ref={boardRef} style={{ position: 'relative' }}>
       <Squares>
         {({ square, squareColor, col, row }) => {
-          const squareHasPremove = premoves.find((p) => p.sourceSq === square || p.targetSq === square);
-          const squareHasPremoveTarget = premoves.find((p) => p.targetSq === square);
           return (
-            <Square
-              key={`${col}${row}`}
-              square={square}
-              squareColor={squareColor}
-              setSquares={setSquares}
-              squareHasPremove={squareHasPremove}
-            >
+            <Square key={`${col}${row}`} square={square} squareColor={squareColor} setSquares={setSquares}>
               {currentPosition[square] && <Piece piece={currentPosition[square]} square={square} squares={squares} />}
-              {squareHasPremoveTarget && (
-                <Piece isPremovedPiece={true} piece={squareHasPremoveTarget.piece} square={square} squares={squares} />
-              )}
               {showBoardNotation && <Notation row={row} col={col} />}
             </Square>
           );
@@ -64,7 +52,7 @@ export function Board() {
         height={boardWidth}
         style={{ position: 'absolute', top: '0', left: '0', pointerEvents: 'none', zIndex: '10' }}
       >
-        {arrows.map(arrow => {
+        {arrows.map((arrow) => {
           const from = getRelativeCoords(boardOrientation, boardWidth, arrow[0]);
           const to = getRelativeCoords(boardOrientation, boardWidth, arrow[1]);
 

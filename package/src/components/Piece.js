@@ -3,13 +3,11 @@ import { getEmptyImage } from 'react-dnd-html5-backend';
 
 import { useChessboard } from '../context/chessboard-context';
 
-export function Piece({ piece, square, squares, isPremovedPiece = false }) {
+export function Piece({ piece, square, squares }) {
   const {
     animationDuration,
-    arePremovesAllowed,
     boardWidth,
     onPieceClick,
-    premoves,
     chessPieces,
     positionDifferences,
     waitingForAnimation,
@@ -22,28 +20,6 @@ export function Piece({ piece, square, squares, isPremovedPiece = false }) {
     touchAction: 'none'
   });
 
-  // hide piece on matching premoves
-  useEffect(() => {
-    // if premoves aren't allowed, don't waste time on calculations
-    if (!arePremovesAllowed) return;
-
-    let hidePiece = false;
-    // side effect: if piece moves into pre-moved square, its hidden
-
-    // if there are any premove targets on this square, hide the piece underneath
-    if (!isPremovedPiece && premoves.find((p) => p.targetSq === square)) hidePiece = true;
-
-    // if sourceSq === sq and piece matches then this piece has been pre-moved elsewhere?
-    if (premoves.find((p) => p.sourceSq === square && p.piece === piece)) hidePiece = true;
-
-    // TODO: If a premoved piece returns to a premoved square, it will hide (e1, e2, e1)
-
-    setPieceStyle((oldPieceStyle) => ({
-      ...oldPieceStyle,
-      display: hidePiece ? 'none' : 'unset'
-    }));
-  }, [currentPosition, premoves]);
-
   // new move has come in
   // if waiting for animation, then animation has started and we can perform animation
   // we need to head towards where we need to go, we are the source, we are heading towards the target
@@ -55,8 +31,8 @@ export function Piece({ piece, square, squares, isPremovedPiece = false }) {
     const newSquare = Object.entries(positionDifferences.added).find(
       ([s, p]) => p === removedPiece || (removedPiece?.[1] === 'P' && (s[1] === '1' || s[1] === '8'))
     );
-    // we can perform animation if our square was in removed, AND the matching piece is in added AND this isn't a premoved piece
-    if (waitingForAnimation && removedPiece && newSquare && !isPremovedPiece) {
+    // we can perform animation if our square was in removed, AND the matching piece is in added
+    if (waitingForAnimation && removedPiece && newSquare) {
       const { sourceSq, targetSq } = getSquareCoordinates(square, newSquare[0]);
       if (sourceSq && targetSq) {
         setPieceStyle((oldPieceStyle) => ({

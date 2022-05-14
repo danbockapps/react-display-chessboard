@@ -1,31 +1,29 @@
-import { useEffect, useState } from 'react';
-import ReactDOM from 'react-dom';
+import { useEffect, useState } from 'react'
+import ReactDOM from 'react-dom'
 
-import BasicBoard from './boards/BasicBoard';
-import ClickToMove from './boards/ClickToMove';
-import PlayVsPlay from './boards/PlayVsPlay';
-import PlayVsRandom from './boards/PlayVsRandom';
-import PremoveVsRandom from './boards/PremoveVsRandom';
-import RandomVsRandom from './boards/RandomVsRandom';
-import SquareStyles from './boards/SquareStyles';
-import StyledBoard from './boards/StyledBoard';
+import BasicBoard from './boards/BasicBoard'
+import ClickToMove from './boards/ClickToMove'
+import PlayVsPlay from './boards/PlayVsPlay'
+import RandomVsRandom from './boards/RandomVsRandom'
+import SquareStyles from './boards/SquareStyles'
+import StyledBoard from './boards/StyledBoard'
 
-import './index.css';
+import './index.css'
 
 function App() {
-  const [chessboardSize, setChessboardSize] = useState(undefined);
-  const [selectedBoard, setSelectedBoard] = useState('PlayVsRandom');
+  const [chessboardSize, setChessboardSize] = useState(undefined)
+  const [selectedBoard, setSelectedBoard] = useState('BasicBoard')
 
   useEffect(() => {
     function handleResize() {
-      const display = document.getElementsByClassName('container')[0];
-      setChessboardSize(display.offsetWidth - 20);
+      const display = document.getElementsByClassName('container')[0]
+      setChessboardSize(display.offsetWidth - 20)
     }
 
-    window.addEventListener('resize', handleResize);
-    handleResize();
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+    window.addEventListener('resize', handleResize)
+    handleResize()
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   function getSelectedBoard() {
     switch (selectedBoard) {
@@ -36,15 +34,7 @@ function App() {
             <BasicBoard boardWidth={chessboardSize} />
             <br />
           </>
-        );
-      case 'PlayVsRandom':
-        return (
-          <>
-            <h2>Play vs Random Moves</h2>
-            <PlayVsRandom boardWidth={chessboardSize} />
-            <br />
-          </>
-        );
+        )
       case 'ClickToMove':
         return (
           <>
@@ -52,7 +42,7 @@ function App() {
             <ClickToMove boardWidth={chessboardSize} />
             <br />
           </>
-        );
+        )
       case 'RandomVsRandom':
         return (
           <>
@@ -60,7 +50,7 @@ function App() {
             <RandomVsRandom boardWidth={chessboardSize} />
             <br />
           </>
-        );
+        )
       case 'PlayVsPlay':
         return (
           <>
@@ -68,15 +58,7 @@ function App() {
             <PlayVsPlay boardWidth={chessboardSize} />
             <br />
           </>
-        );
-      case 'PremoveVsRandom':
-        return (
-          <>
-            <h2>Premove vs Random</h2>
-            <PremoveVsRandom boardWidth={chessboardSize} />
-            <br />
-          </>
-        );
+        )
       case 'SquareStyles':
         return (
           <>
@@ -84,7 +66,7 @@ function App() {
             <SquareStyles boardWidth={chessboardSize} />
             <br />
           </>
-        );
+        )
       case 'StyledBoard':
         return (
           <>
@@ -92,37 +74,28 @@ function App() {
             <StyledBoard boardWidth={chessboardSize} />
             <br />
           </>
-        );
+        )
     }
   }
 
   return (
-    <div className="container">
+    <div className='container'>
       <h1>react-chessboard examples</h1>
-      <div className="button-container">
+      <div className='button-container'>
         <button
           className={`rc-button ${selectedBoard === 'BasicBoard' ? 'selected' : ''}`}
           onClick={() => {
-            setSelectedBoard(null);
-            setTimeout(() => setSelectedBoard('BasicBoard'), 10);
+            setSelectedBoard(null)
+            setTimeout(() => setSelectedBoard('BasicBoard'), 10)
           }}
         >
           Basic Board
         </button>
         <button
-          className={`rc-button ${selectedBoard === 'PlayVsRandom' ? 'selected' : ''}`}
-          onClick={() => {
-            setSelectedBoard(null);
-            setTimeout(() => setSelectedBoard('PlayVsRandom'), 10);
-          }}
-        >
-          Play Vs Random
-        </button>
-        <button
           className={`rc-button ${selectedBoard === 'ClickToMove' ? 'selected' : ''}`}
           onClick={() => {
-            setSelectedBoard(null);
-            setTimeout(() => setSelectedBoard('ClickToMove'), 10);
+            setSelectedBoard(null)
+            setTimeout(() => setSelectedBoard('ClickToMove'), 10)
           }}
         >
           Click to Move
@@ -130,8 +103,8 @@ function App() {
         <button
           className={`rc-button ${selectedBoard === 'RandomVsRandom' ? 'selected' : ''}`}
           onClick={() => {
-            setSelectedBoard(null);
-            setTimeout(() => setSelectedBoard('RandomVsRandom'), 10);
+            setSelectedBoard(null)
+            setTimeout(() => setSelectedBoard('RandomVsRandom'), 10)
           }}
         >
           Random Vs Random
@@ -139,26 +112,17 @@ function App() {
         <button
           className={`rc-button ${selectedBoard === 'PlayVsPlay' ? 'selected' : ''}`}
           onClick={() => {
-            setSelectedBoard(null);
-            setTimeout(() => setSelectedBoard('PlayVsPlay'), 10);
+            setSelectedBoard(null)
+            setTimeout(() => setSelectedBoard('PlayVsPlay'), 10)
           }}
         >
           Play Vs Play
         </button>
         <button
-          className={`rc-button ${selectedBoard === 'PremoveVsRandom' ? 'selected' : ''}`}
-          onClick={() => {
-            setSelectedBoard(null);
-            setTimeout(() => setSelectedBoard('PremoveVsRandom'), 10);
-          }}
-        >
-          Premove Vs Random
-        </button>
-        <button
           className={`rc-button ${selectedBoard === 'SquareStyles' ? 'selected' : ''}`}
           onClick={() => {
-            setSelectedBoard(null);
-            setTimeout(() => setSelectedBoard('SquareStyles'), 10);
+            setSelectedBoard(null)
+            setTimeout(() => setSelectedBoard('SquareStyles'), 10)
           }}
         >
           Styled Squares
@@ -166,8 +130,8 @@ function App() {
         <button
           className={`rc-button ${selectedBoard === 'StyledBoard' ? 'selected' : ''}`}
           onClick={() => {
-            setSelectedBoard(null);
-            setTimeout(() => setSelectedBoard('StyledBoard'), 10);
+            setSelectedBoard(null)
+            setTimeout(() => setSelectedBoard('StyledBoard'), 10)
           }}
         >
           Styled Board
@@ -175,7 +139,7 @@ function App() {
       </div>
       {getSelectedBoard()}
     </div>
-  );
+  )
 }
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App />, document.getElementById('root'))

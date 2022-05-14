@@ -1,4 +1,4 @@
-import React, { forwardRef, useContext, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, useContext, useEffect, useRef, useState } from 'react';
 
 import { defaultPieces } from '../media/pieces';
 import { convertPositionToObject, getPositionDifferences, isDifferentFromStart } from '../functions';
@@ -21,18 +21,14 @@ export const ChessboardProvider = forwardRef(
     {
       animationDuration,
       areArrowsAllowed,
-      arePremovesAllowed,
       boardOrientation,
       boardWidth,
-      clearPremovesOnRightClick,
       customArrows,
       customArrowColor,
       customBoardStyle,
       customDarkSquareStyle,
       customLightSquareStyle,
       customPieces,
-      customPremoveDarkSquareStyle,
-      customPremoveLightSquareStyle,
       customSquareStyles,
       getPositionObject,
       onMouseOutSquare,
@@ -56,10 +52,6 @@ export const ChessboardProvider = forwardRef(
 
     // colour of last piece moved to determine if premoving
     const [lastPieceColour, setLastPieceColour] = useState(undefined);
-    // current premoves
-    const [premoves, setPremoves] = useState([]);
-    // ref used to access current value during timeouts (closures)
-    const premovesRef = useRef(premoves);
 
     // current right mouse down square
     const [currentRightClickDown, setCurrentRightClickDown] = useState();
@@ -74,13 +66,6 @@ export const ChessboardProvider = forwardRef(
 
     // if currently waiting for an animation to finish
     const [waitingForAnimation, setWaitingForAnimation] = useState(false);
-
-    // open clearPremoves() to allow user to call on undo/reset/whenever
-    useImperativeHandle(ref, () => ({
-      clearPremoves() {
-        clearPremoves();
-      }
-    }));
 
     // handle custom pieces change
     useEffect(() => {
@@ -122,13 +107,6 @@ export const ChessboardProvider = forwardRef(
       setArrows(customArrows);
     }, [customArrows]);
 
-    function clearPremoves(clearLastPieceColour = true) {
-      // don't clear when right clicking to clear, otherwise you won't be able to premove again before next go
-      if (clearLastPieceColour) setLastPieceColour(undefined);
-      premovesRef.current = [];
-      setPremoves([]);
-    }
-
     function onRightClickDown(square) {
       setCurrentRightClickDown(square);
     }
@@ -136,10 +114,9 @@ export const ChessboardProvider = forwardRef(
     function onRightClickUp(square) {
       if (!areArrowsAllowed) return;
       if (currentRightClickDown) {
-        // same square, don't draw an arrow, but do clear premoves and run onSquareRightClick
+        // same square, don't draw an arrow
         if (currentRightClickDown === square) {
           setCurrentRightClickDown(null);
-          clearPremovesOnRightClick && clearPremoves(false);
           onSquareRightClick(square);
           return;
         }
@@ -173,15 +150,12 @@ export const ChessboardProvider = forwardRef(
       <ChessboardContext.Provider
         value={{
           animationDuration,
-          arePremovesAllowed,
           boardOrientation,
           boardWidth,
           customArrowColor,
           customBoardStyle,
           customDarkSquareStyle,
           customLightSquareStyle,
-          customPremoveDarkSquareStyle,
-          customPremoveLightSquareStyle,
           customSquareStyles,
           getPositionObject,
           onMouseOutSquare,
@@ -197,13 +171,11 @@ export const ChessboardProvider = forwardRef(
           chessPieces,
           clearArrows,
           clearCurrentRightClickDown,
-          clearPremoves,
           currentPosition,
           lastPieceColour,
           onRightClickDown,
           onRightClickUp,
           positionDifferences,
-          premoves,
           setChessPieces,
           setCurrentPosition,
           waitingForAnimation

@@ -4,7 +4,6 @@ import Chess from 'chess.js'
 import { Chessboard } from 'react-chessboard'
 
 export default function RandomVsRandom({ boardWidth }) {
-  const chessboardRef = useRef()
   const [game, setGame] = useState(new Chess())
   const [latestTimeout, setLatestTimeout] = useState()
 
@@ -51,7 +50,6 @@ export default function RandomVsRandom({ boardWidth }) {
           borderRadius: '4px',
           boxShadow: '0 5px 15px rgba(0, 0, 0, 0.5)',
         }}
-        ref={chessboardRef}
       />
       <button
         className='rc-button'
@@ -60,7 +58,6 @@ export default function RandomVsRandom({ boardWidth }) {
           safeGameMutate(game => {
             game.reset()
           })
-          chessboardRef.current.clearPremoves()
           const timeout = setTimeout(makeRandomMove, 1000)
           setLatestTimeout(timeout)
         }}
