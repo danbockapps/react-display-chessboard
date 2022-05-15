@@ -9,8 +9,6 @@ export const chessboardDefaultProps = {
   customArrowColor: 'rgb(255,170,0)',
   customBoardStyle: {},
   customDarkSquareStyle: { backgroundColor: '#B58863' },
-  customDndBackend: undefined,
-  customDndBackendOptions: undefined,
   customLightSquareStyle: { backgroundColor: '#F0D9B5' },
   customPieces: {},
   customSquareStyles: {},

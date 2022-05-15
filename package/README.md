@@ -53,54 +53,50 @@ npm i react-chessboard
 - Promotion Piece Select
 - Spare Pieces
 
-### Notes
-
-- If more than one board is rendered and draggable on a low end device, performance will struggle due to performance issues with react-dnd.
-
 ## Usage
 
 ### Bare Minimum
 
 ```jsx
-import { Chessboard } from 'react-chessboard'
+import { Chessboard } from 'react-chessboard';
 
 export default function App() {
   return (
     <div>
       <Chessboard />
     </div>
-  )
+  );
 }
 ```
 
 ### Basic Example
 
 ```jsx
-import { useState } from 'react'
-import Chess from 'chess.js'
-import { Chessboard } from 'react-chessboard'
+import { useState } from 'react';
+import Chess from 'chess.js';
+import { Chessboard } from 'react-chessboard';
 
 export default function PlayRandomMoveEngine() {
-  const [game, setGame] = useState(new Chess())
+  const [game, setGame] = useState(new Chess());
 
   function safeGameMutate(modify) {
-    setGame(g => {
-      const update = { ...g }
-      modify(update)
-      return update
-    })
+    setGame((g) => {
+      const update = { ...g };
+      modify(update);
+      return update;
+    });
   }
 
   function makeRandomMove() {
-    const possibleMoves = game.moves()
-    if (game.game_over() || game.in_draw() || possibleMoves.length === 0) return // exit if the game is over
-    const randomIndex = Math.floor(Math.random() * possibleMoves.length)
-    safeGameMutate(game => {
-      game.move(possibleMoves[randomIndex])
-    })
+    const possibleMoves = game.moves();
+    if (game.game_over() || game.in_draw() || possibleMoves.length === 0) return; // exit if the game is over
+    const randomIndex = Math.floor(Math.random() * possibleMoves.length);
+    safeGameMutate((game) => {
+      game.move(possibleMoves[randomIndex]);
+    });
   }
 
-  return <Chessboard position={game.fen()} />
+  return <Chessboard position={game.fen()} />;
 }
 ```
 
@@ -110,31 +106,29 @@ For more advanced code usage examples, please see example boards shown in [`exam
 
 ### Props
 
-| Prop                    | Default Value                          | Options                                            | Description                                                                                                                                                                                                                                                                                                                                                     |
-| ----------------------- | -------------------------------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| animationDuration       | number: 300                            |                                                    | Time in milliseconds for piece to slide to target square. Only used when the position is programmatically changed. If a new position is set before the animation is complete, the board will cancel the current animation and snap to the new position.                                                                                                         |
-| areArrowsAllowed        | boolean: true                          | [true, false]                                      | Whether or not arrows can be drawn with right click and dragging.                                                                                                                                                                                                                                                                                               |
-| arePiecesDraggable      | boolean: true                          | [true, false]                                      | Whether or not all pieces are draggable.                                                                                                                                                                                                                                                                                                                        |
-| boardOrientation        | string: 'white'                        | ['white', 'black']                                 | The orientation of the board, the chosen colour will be at the bottom of the board.                                                                                                                                                                                                                                                                             |
-| boardWidth              | number: 560                            |                                                    | The width of the board in pixels.                                                                                                                                                                                                                                                                                                                               |
-| customArrowColor        | string: 'rgb(255,170,0)'               | rgb or hex string                                  | String with rgb or hex value to colour drawn arrows.                                                                                                                                                                                                                                                                                                            |
-| customArrows            | string[][]: []                         | array of string arrays                             | Array of custom arrows to draw on the board. Each arrow within the array must be an array of length 2 with strings denoting the from and to square to draw the arrow e.g. [ ['a3', 'a5'], ['g1', 'f3'] ].                                                                                                                                                       |
-| customBoardStyle        | object: {}                             | inline CSS styling                                 | Custom board style object e.g. { borderRadius: '5px', boxShadow: '0 5px 15px rgba(0, 0, 0, 0.5 '}.                                                                                                                                                                                                                                                              |
-| customDarkSquareStyle   | object: { backgroundColor: '#B58863' } | inline CSS styling                                 | Custom dark square style object.                                                                                                                                                                                                                                                                                                                                |
-| customDndBackend        | BackendFactory: undefined              |                                                    | Custom react-dnd backend to use instead of the one provided by react-chessboard.                                                                                                                                                                                                                                                                                |
-| customDndBackendOptions | any: undefined                         |                                                    | Options to use for the given custom react-dnd backend. See customDndBackend.                                                                                                                                                                                                                                                                                    |
-| customLightSquareStyle  | object: { backgroundColor: '#F0D9B5' } | inline CSS styling                                 | Custom light square style object.                                                                                                                                                                                                                                                                                                                               |
-| customPieces            | object: {}                             |                                                    | Custom pieces object where each key must match a corresponding chess piece (wP, wB, wN, wR, wQ, wK, bP, bB, bN, bR, bQ, bK). The value of each piece is a function that takes in some optional arguments to use and must return JSX to render. e.g. { wK: ({ squareWidth: number, droppedPiece: string, targetSquare: string, sourceSquare: string }) => jsx }. |
-| customSquareStyles      | object: {}                             | inline CSS styling                                 | Custom styles for all squares.                                                                                                                                                                                                                                                                                                                                  |
-| getPositionObject       | function: (currentPosition) => {}      |                                                    | User function that receives current position object when position changes.                                                                                                                                                                                                                                                                                      |
-| onDragOverSquare        | function: (square) => {}               |                                                    | User function that is run when piece is dragged over a square.                                                                                                                                                                                                                                                                                                  |
-| onMouseOverSquare       | function: (square) => {}               |                                                    | User function that is run when mouse is over a square.                                                                                                                                                                                                                                                                                                          |
-| onPieceClick            | function: (piece) => {}                |                                                    | User function that is run when piece is clicked.                                                                                                                                                                                                                                                                                                                |
-| onSquareClick           | function: (square) => {}               |                                                    | User function that is run when a square is clicked.                                                                                                                                                                                                                                                                                                             |
-| onSquareRightClick      | function: (square) => {}               |                                                    | User function that is run when a square is right clicked.                                                                                                                                                                                                                                                                                                       |
-| position                | string: 'start'                        | ['start', FEN string, { e5: 'wK', e4: 'wP', ... }] | FEN string or position object notating where the chess pieces are on the board. Start position can also be notated with the string: 'start'.                                                                                                                                                                                                                    |
-| showBoardNotation       | boolean: true                          | [true, false]                                      | Whether or not to show the file and rank co-ordinates (a..h, 1..8).                                                                                                                                                                                                                                                                                             |
-| snapToCursor            | boolean: true                          | [true, false]                                      | Whether or not to center dragged pieces on the mouse cursor.                                                                                                                                                                                                                                                                                                    |
+| Prop                   | Default Value                          | Options                                            | Description                                                                                                                                                                                                                                                                                                                                                     |
+| ---------------------- | -------------------------------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| animationDuration      | number: 300                            |                                                    | Time in milliseconds for piece to slide to target square. Only used when the position is programmatically changed. If a new position is set before the animation is complete, the board will cancel the current animation and snap to the new position.                                                                                                         |
+| areArrowsAllowed       | boolean: true                          | [true, false]                                      | Whether or not arrows can be drawn with right click and dragging.                                                                                                                                                                                                                                                                                               |
+| arePiecesDraggable     | boolean: true                          | [true, false]                                      | Whether or not all pieces are draggable.                                                                                                                                                                                                                                                                                                                        |
+| boardOrientation       | string: 'white'                        | ['white', 'black']                                 | The orientation of the board, the chosen colour will be at the bottom of the board.                                                                                                                                                                                                                                                                             |
+| boardWidth             | number: 560                            |                                                    | The width of the board in pixels.                                                                                                                                                                                                                                                                                                                               |
+| customArrowColor       | string: 'rgb(255,170,0)'               | rgb or hex string                                  | String with rgb or hex value to colour drawn arrows.                                                                                                                                                                                                                                                                                                            |
+| customArrows           | string[][]: []                         | array of string arrays                             | Array of custom arrows to draw on the board. Each arrow within the array must be an array of length 2 with strings denoting the from and to square to draw the arrow e.g. [ ['a3', 'a5'], ['g1', 'f3'] ].                                                                                                                                                       |
+| customBoardStyle       | object: {}                             | inline CSS styling                                 | Custom board style object e.g. { borderRadius: '5px', boxShadow: '0 5px 15px rgba(0, 0, 0, 0.5 '}.                                                                                                                                                                                                                                                              |
+| customDarkSquareStyle  | object: { backgroundColor: '#B58863' } | inline CSS styling                                 | Custom dark square style object.                                                                                                                                                                                                                                                                                                                                |
+| customLightSquareStyle | object: { backgroundColor: '#F0D9B5' } | inline CSS styling                                 | Custom light square style object.                                                                                                                                                                                                                                                                                                                               |
+| customPieces           | object: {}                             |                                                    | Custom pieces object where each key must match a corresponding chess piece (wP, wB, wN, wR, wQ, wK, bP, bB, bN, bR, bQ, bK). The value of each piece is a function that takes in some optional arguments to use and must return JSX to render. e.g. { wK: ({ squareWidth: number, droppedPiece: string, targetSquare: string, sourceSquare: string }) => jsx }. |
+| customSquareStyles     | object: {}                             | inline CSS styling                                 | Custom styles for all squares.                                                                                                                                                                                                                                                                                                                                  |
+| getPositionObject      | function: (currentPosition) => {}      |                                                    | User function that receives current position object when position changes.                                                                                                                                                                                                                                                                                      |
+| onDragOverSquare       | function: (square) => {}               |                                                    | User function that is run when piece is dragged over a square.                                                                                                                                                                                                                                                                                                  |
+| onMouseOverSquare      | function: (square) => {}               |                                                    | User function that is run when mouse is over a square.                                                                                                                                                                                                                                                                                                          |
+| onPieceClick           | function: (piece) => {}                |                                                    | User function that is run when piece is clicked.                                                                                                                                                                                                                                                                                                                |
+| onSquareClick          | function: (square) => {}               |                                                    | User function that is run when a square is clicked.                                                                                                                                                                                                                                                                                                             |
+| onSquareRightClick     | function: (square) => {}               |                                                    | User function that is run when a square is right clicked.                                                                                                                                                                                                                                                                                                       |
+| position               | string: 'start'                        | ['start', FEN string, { e5: 'wK', e4: 'wP', ... }] | FEN string or position object notating where the chess pieces are on the board. Start position can also be notated with the string: 'start'.                                                                                                                                                                                                                    |
+| showBoardNotation      | boolean: true                          | [true, false]                                      | Whether or not to show the file and rank co-ordinates (a..h, 1..8).                                                                                                                                                                                                                                                                                             |
+| snapToCursor           | boolean: true                          | [true, false]                                      | Whether or not to center dragged pieces on the mouse cursor.                                                                                                                                                                                                                                                                                                    |
 
 ## Contributing
 
