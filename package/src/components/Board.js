@@ -27,23 +27,13 @@ export function Board() {
     onTouchEnd
   } = useChessboard();
 
-  //TODO see if this is doing anything
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (boardRef.current && !boardRef.current.contains(event.target)) {
-        clearCurrentRightClickDown();
-      }
-    }
-
-    document.addEventListener('mouseup', handleClickOutside);
-    return () => {
-      document.removeEventListener('mouseup', handleClickOutside);
-    };
-  }, []);
-
   const getSquare = (e) => {
     const relativeX = e.changedTouches[0].clientX - rect.left;
     const relativeY = e.changedTouches[0].clientY - rect.top;
+
+    // Catch drag-offs
+    if (relativeX < 0 || relativeY < 0 || relativeX > boardWidth || relativeY > boardWidth) return undefined;
+
     const col = Math.floor((relativeX * 8) / boardWidth);
     const row = Math.floor((relativeY * 8) / boardWidth);
     return boardOrientation === 'black' ? `${COLUMNS[7 - col]}${row + 1}` : `${COLUMNS[col]}${8 - row}`;
