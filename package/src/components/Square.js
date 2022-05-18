@@ -57,7 +57,8 @@ export function Square({ square, squareColor, setSquares, children }) {
         ref={squareRef}
         style={{
           ...size(boardWidth),
-          ...center
+          ...center,
+          ...customSquareStyles?.[square]
         }}
       >
         {children}

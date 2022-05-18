@@ -2584,7 +2584,8 @@ function Square({
     children: /*#__PURE__*/jsxRuntime.exports.jsx("div", {
       ref: squareRef,
       style: { ...size(boardWidth),
-        ...center
+        ...center,
+        ...(customSquareStyles === null || customSquareStyles === void 0 ? void 0 : customSquareStyles[square])
       },
       children: children
     })
