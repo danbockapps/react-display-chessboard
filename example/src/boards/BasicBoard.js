@@ -2,7 +2,6 @@ import { Chessboard } from 'react-chessboard'
 import { useState } from 'react'
 
 export default function BasicBoard({ boardWidth }) {
-  const [selectedSquare, setSelectedSquare] = useState('')
   const [currentArrow, setCurrentArrow] = useState()
 
   return (
