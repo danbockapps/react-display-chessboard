@@ -7,10 +7,12 @@ import { Square } from './Square';
 import { Squares } from './Squares';
 import { useChessboard } from '../context/chessboard-context';
 import { WhiteKing } from './ErrorBoundary';
+import { COLUMNS } from '../consts';
 
 export function Board() {
   const boardRef = useRef();
   const [squares, setSquares] = useState({});
+  const [rect, setRect] = useState();
 
   const {
     arrows,
@@ -19,9 +21,13 @@ export function Board() {
     clearCurrentRightClickDown,
     customArrowColor,
     showBoardNotation,
-    currentPosition
+    currentPosition,
+    onTouchStart,
+    onTouchMove,
+    onTouchEnd
   } = useChessboard();
 
+  //TODO see if this is doing anything
   useEffect(() => {
     function handleClickOutside(event) {
       if (boardRef.current && !boardRef.current.contains(event.target)) {
@@ -35,8 +41,31 @@ export function Board() {
     };
   }, []);
 
+  const getSquare = (e) => {
+    const relativeX = e.changedTouches[0].clientX - rect.left;
+    const relativeY = e.changedTouches[0].clientY - rect.top;
+    const col = Math.floor((relativeX * 8) / boardWidth);
+    const row = Math.floor((relativeY * 8) / boardWidth);
+    return boardOrientation === 'black' ? `${COLUMNS[7 - col]}${row + 1}` : `${COLUMNS[col]}${8 - row}`;
+  };
+
   return boardWidth ? (
-    <div ref={boardRef} style={{ position: 'relative' }}>
+    <div
+      ref={(r) => {
+        const newRect = r?.getBoundingClientRect();
+        if (
+          newRect?.top !== rect?.top ||
+          newRect?.bottom !== rect?.bottom ||
+          newRect?.left !== rect?.left ||
+          newRect?.right !== rect?.right
+        )
+          setRect(r?.getBoundingClientRect());
+      }}
+      style={{ position: 'relative' }}
+      onTouchStart={(e) => onTouchStart?.(getSquare(e))}
+      onTouchMove={(e) => onTouchMove?.(getSquare(e))}
+      onTouchEnd={(e) => onTouchEnd?.(getSquare(e))}
+    >
       <Squares>
         {({ square, squareColor, col, row }) => {
           return (

@@ -159,6 +159,18 @@ export interface ChessBoardProps {
    */
   onSquareRightClick?: (square: Square) => any;
   /**
+   * User function for touchStart event
+   */
+  onTouchStart?: (square: Square) => void;
+  /**
+   * User function for touchMove event
+   */
+  onTouchMove?: (square: Square) => void;
+  /**
+   * User function for touchEnd event
+   */
+  onTouchEnd?: (square: Square) => void;
+  /**
    * FEN string or position object notating where the chess pieces are on the board. Start position can also be notated with the string: 'start'.
    */
   position?: string;

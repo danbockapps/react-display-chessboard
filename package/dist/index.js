@@ -186,7 +186,102 @@ var jsxRuntime = {exports: {}};
 
 var reactJsxRuntime_production_min = {};
 
-/** @license React v16.14.0
+/*
+object-assign
+(c) Sindre Sorhus
+@license MIT
+*/
+/* eslint-disable no-unused-vars */
+
+var getOwnPropertySymbols = Object.getOwnPropertySymbols;
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+var propIsEnumerable = Object.prototype.propertyIsEnumerable;
+
+function toObject(val) {
+  if (val === null || val === undefined) {
+    throw new TypeError('Object.assign cannot be called with null or undefined');
+  }
+
+  return Object(val);
+}
+
+function shouldUseNative() {
+  try {
+    if (!Object.assign) {
+      return false;
+    } // Detect buggy property enumeration order in older V8 versions.
+    // https://bugs.chromium.org/p/v8/issues/detail?id=4118
+
+
+    var test1 = new String('abc'); // eslint-disable-line no-new-wrappers
+
+    test1[5] = 'de';
+
+    if (Object.getOwnPropertyNames(test1)[0] === '5') {
+      return false;
+    } // https://bugs.chromium.org/p/v8/issues/detail?id=3056
+
+
+    var test2 = {};
+
+    for (var i = 0; i < 10; i++) {
+      test2['_' + String.fromCharCode(i)] = i;
+    }
+
+    var order2 = Object.getOwnPropertyNames(test2).map(function (n) {
+      return test2[n];
+    });
+
+    if (order2.join('') !== '0123456789') {
+      return false;
+    } // https://bugs.chromium.org/p/v8/issues/detail?id=3056
+
+
+    var test3 = {};
+    'abcdefghijklmnopqrst'.split('').forEach(function (letter) {
+      test3[letter] = letter;
+    });
+
+    if (Object.keys(Object.assign({}, test3)).join('') !== 'abcdefghijklmnopqrst') {
+      return false;
+    }
+
+    return true;
+  } catch (err) {
+    // We don't expect any of the above to throw, but better to be safe.
+    return false;
+  }
+}
+
+var objectAssign = shouldUseNative() ? Object.assign : function (target, source) {
+  var from;
+  var to = toObject(target);
+  var symbols;
+
+  for (var s = 1; s < arguments.length; s++) {
+    from = Object(arguments[s]);
+
+    for (var key in from) {
+      if (hasOwnProperty.call(from, key)) {
+        to[key] = from[key];
+      }
+    }
+
+    if (getOwnPropertySymbols) {
+      symbols = getOwnPropertySymbols(from);
+
+      for (var i = 0; i < symbols.length; i++) {
+        if (propIsEnumerable.call(from, symbols[i])) {
+          to[symbols[i]] = from[symbols[i]];
+        }
+      }
+    }
+  }
+
+  return to;
+};
+
+/** @license React v17.0.2
  * react-jsx-runtime.production.min.js
  *
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -194,6 +289,8 @@ var reactJsxRuntime_production_min = {};
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
+
+
 
 var f = require$$0__default["default"],
     g = 60103;
@@ -242,7 +339,7 @@ reactJsxRuntime_production_min.jsxs = q;
 
 var reactJsxRuntime_development = {};
 
-/** @license React v16.14.0
+/** @license React v17.0.2
  * react-jsx-runtime.development.js
  *
  * Copyright (c) Facebook, Inc. and its affiliates.
@@ -256,7 +353,9 @@ var reactJsxRuntime_development = {};
 if (process.env.NODE_ENV !== "production") {
   (function () {
 
-    var React = require$$0__default["default"]; // ATTENTION
+    var React = require$$0__default["default"];
+
+    var _assign = objectAssign; // ATTENTION
     // When adding new symbols to this file,
     // Please consider also adding to 'react-devtools-shared/src/backend/ReactSymbols'
     // The Symbol used to tag the ReactElement-like types. If there is no native Symbol
@@ -339,15 +438,7 @@ if (process.env.NODE_ENV !== "production") {
       // update consoleWithStackDev.www.js as well.
       {
         var ReactDebugCurrentFrame = ReactSharedInternals.ReactDebugCurrentFrame;
-        var stack = '';
-
-        if (currentlyValidatingElement) {
-          var name = getComponentName(currentlyValidatingElement.type);
-          var owner = currentlyValidatingElement._owner;
-          stack += describeComponentFrame(name, currentlyValidatingElement._source, owner && getComponentName(owner.type));
-        }
-
-        stack += ReactDebugCurrentFrame.getStackAddendum();
+        var stack = ReactDebugCurrentFrame.getStackAddendum();
 
         if (stack !== '') {
           format += '%s';
@@ -388,47 +479,13 @@ if (process.env.NODE_ENV !== "production") {
       return false;
     }
 
-    var BEFORE_SLASH_RE = /^(.*)[\\\/]/;
-
-    function describeComponentFrame(name, source, ownerName) {
-      var sourceInfo = '';
-
-      if (source) {
-        var path = source.fileName;
-        var fileName = path.replace(BEFORE_SLASH_RE, '');
-        {
-          // In DEV, include code for a common special case:
-          // prefer "folder/index.js" instead of just "index.js".
-          if (/^index\./.test(fileName)) {
-            var match = path.match(BEFORE_SLASH_RE);
-
-            if (match) {
-              var pathBeforeSlash = match[1];
-
-              if (pathBeforeSlash) {
-                var folderName = pathBeforeSlash.replace(BEFORE_SLASH_RE, '');
-                fileName = folderName + '/' + fileName;
-              }
-            }
-          }
-        }
-        sourceInfo = ' (at ' + fileName + ':' + source.lineNumber + ')';
-      } else if (ownerName) {
-        sourceInfo = ' (created by ' + ownerName + ')';
-      }
-
-      return '\n    in ' + (name || 'Unknown') + sourceInfo;
-    }
-
-    var Resolved = 1;
-
-    function refineResolvedLazyComponent(lazyComponent) {
-      return lazyComponent._status === Resolved ? lazyComponent._result : null;
-    }
-
     function getWrappedName(outerType, innerType, wrapperName) {
       var functionName = innerType.displayName || innerType.name || '';
       return outerType.displayName || (functionName !== '' ? wrapperName + "(" + functionName + ")" : wrapperName);
+    }
+
+    function getContextName(type) {
+      return type.displayName || 'Context';
     }
 
     function getComponentName(type) {
@@ -459,7 +516,7 @@ if (process.env.NODE_ENV !== "production") {
           return 'Portal';
 
         case REACT_PROFILER_TYPE:
-          return "Profiler";
+          return 'Profiler';
 
         case REACT_STRICT_MODE_TYPE:
           return 'StrictMode';
@@ -474,10 +531,12 @@ if (process.env.NODE_ENV !== "production") {
       if (typeof type === 'object') {
         switch (type.$$typeof) {
           case REACT_CONTEXT_TYPE:
-            return 'Context.Consumer';
+            var context = type;
+            return getContextName(context) + '.Consumer';
 
           case REACT_PROVIDER_TYPE:
-            return 'Context.Provider';
+            var provider = type;
+            return getContextName(provider._context) + '.Provider';
 
           case REACT_FORWARD_REF_TYPE:
             return getWrappedName(type, type.render, 'ForwardRef');
@@ -486,32 +545,370 @@ if (process.env.NODE_ENV !== "production") {
             return getComponentName(type.type);
 
           case REACT_BLOCK_TYPE:
-            return getComponentName(type.render);
+            return getComponentName(type._render);
 
           case REACT_LAZY_TYPE:
             {
-              var thenable = type;
-              var resolvedThenable = refineResolvedLazyComponent(thenable);
+              var lazyComponent = type;
+              var payload = lazyComponent._payload;
+              var init = lazyComponent._init;
 
-              if (resolvedThenable) {
-                return getComponentName(resolvedThenable);
+              try {
+                return getComponentName(init(payload));
+              } catch (x) {
+                return null;
               }
-
-              break;
             }
         }
       }
 
       return null;
+    } // Helpers to patch console.logs to avoid logging during side-effect free
+    // replaying on render function. This currently only patches the object
+    // lazily which won't cover if the log function was extracted eagerly.
+    // We could also eagerly patch the method.
+
+
+    var disabledDepth = 0;
+    var prevLog;
+    var prevInfo;
+    var prevWarn;
+    var prevError;
+    var prevGroup;
+    var prevGroupCollapsed;
+    var prevGroupEnd;
+
+    function disabledLog() {}
+
+    disabledLog.__reactDisabledLog = true;
+
+    function disableLogs() {
+      {
+        if (disabledDepth === 0) {
+          /* eslint-disable react-internal/no-production-logging */
+          prevLog = console.log;
+          prevInfo = console.info;
+          prevWarn = console.warn;
+          prevError = console.error;
+          prevGroup = console.group;
+          prevGroupCollapsed = console.groupCollapsed;
+          prevGroupEnd = console.groupEnd; // https://github.com/facebook/react/issues/19099
+
+          var props = {
+            configurable: true,
+            enumerable: true,
+            value: disabledLog,
+            writable: true
+          }; // $FlowFixMe Flow thinks console is immutable.
+
+          Object.defineProperties(console, {
+            info: props,
+            log: props,
+            warn: props,
+            error: props,
+            group: props,
+            groupCollapsed: props,
+            groupEnd: props
+          });
+          /* eslint-enable react-internal/no-production-logging */
+        }
+
+        disabledDepth++;
+      }
+    }
+
+    function reenableLogs() {
+      {
+        disabledDepth--;
+
+        if (disabledDepth === 0) {
+          /* eslint-disable react-internal/no-production-logging */
+          var props = {
+            configurable: true,
+            enumerable: true,
+            writable: true
+          }; // $FlowFixMe Flow thinks console is immutable.
+
+          Object.defineProperties(console, {
+            log: _assign({}, props, {
+              value: prevLog
+            }),
+            info: _assign({}, props, {
+              value: prevInfo
+            }),
+            warn: _assign({}, props, {
+              value: prevWarn
+            }),
+            error: _assign({}, props, {
+              value: prevError
+            }),
+            group: _assign({}, props, {
+              value: prevGroup
+            }),
+            groupCollapsed: _assign({}, props, {
+              value: prevGroupCollapsed
+            }),
+            groupEnd: _assign({}, props, {
+              value: prevGroupEnd
+            })
+          });
+          /* eslint-enable react-internal/no-production-logging */
+        }
+
+        if (disabledDepth < 0) {
+          error('disabledDepth fell below zero. ' + 'This is a bug in React. Please file an issue.');
+        }
+      }
+    }
+
+    var ReactCurrentDispatcher = ReactSharedInternals.ReactCurrentDispatcher;
+    var prefix;
+
+    function describeBuiltInComponentFrame(name, source, ownerFn) {
+      {
+        if (prefix === undefined) {
+          // Extract the VM specific prefix used by each line.
+          try {
+            throw Error();
+          } catch (x) {
+            var match = x.stack.trim().match(/\n( *(at )?)/);
+            prefix = match && match[1] || '';
+          }
+        } // We use the prefix to ensure our stacks line up with native stack frames.
+
+
+        return '\n' + prefix + name;
+      }
+    }
+
+    var reentry = false;
+    var componentFrameCache;
+    {
+      var PossiblyWeakMap = typeof WeakMap === 'function' ? WeakMap : Map;
+      componentFrameCache = new PossiblyWeakMap();
+    }
+
+    function describeNativeComponentFrame(fn, construct) {
+      // If something asked for a stack inside a fake render, it should get ignored.
+      if (!fn || reentry) {
+        return '';
+      }
+
+      {
+        var frame = componentFrameCache.get(fn);
+
+        if (frame !== undefined) {
+          return frame;
+        }
+      }
+      var control;
+      reentry = true;
+      var previousPrepareStackTrace = Error.prepareStackTrace; // $FlowFixMe It does accept undefined.
+
+      Error.prepareStackTrace = undefined;
+      var previousDispatcher;
+      {
+        previousDispatcher = ReactCurrentDispatcher.current; // Set the dispatcher in DEV because this might be call in the render function
+        // for warnings.
+
+        ReactCurrentDispatcher.current = null;
+        disableLogs();
+      }
+
+      try {
+        // This should throw.
+        if (construct) {
+          // Something should be setting the props in the constructor.
+          var Fake = function () {
+            throw Error();
+          }; // $FlowFixMe
+
+
+          Object.defineProperty(Fake.prototype, 'props', {
+            set: function () {
+              // We use a throwing setter instead of frozen or non-writable props
+              // because that won't throw in a non-strict mode function.
+              throw Error();
+            }
+          });
+
+          if (typeof Reflect === 'object' && Reflect.construct) {
+            // We construct a different control for this case to include any extra
+            // frames added by the construct call.
+            try {
+              Reflect.construct(Fake, []);
+            } catch (x) {
+              control = x;
+            }
+
+            Reflect.construct(fn, [], Fake);
+          } else {
+            try {
+              Fake.call();
+            } catch (x) {
+              control = x;
+            }
+
+            fn.call(Fake.prototype);
+          }
+        } else {
+          try {
+            throw Error();
+          } catch (x) {
+            control = x;
+          }
+
+          fn();
+        }
+      } catch (sample) {
+        // This is inlined manually because closure doesn't do it for us.
+        if (sample && control && typeof sample.stack === 'string') {
+          // This extracts the first frame from the sample that isn't also in the control.
+          // Skipping one frame that we assume is the frame that calls the two.
+          var sampleLines = sample.stack.split('\n');
+          var controlLines = control.stack.split('\n');
+          var s = sampleLines.length - 1;
+          var c = controlLines.length - 1;
+
+          while (s >= 1 && c >= 0 && sampleLines[s] !== controlLines[c]) {
+            // We expect at least one stack frame to be shared.
+            // Typically this will be the root most one. However, stack frames may be
+            // cut off due to maximum stack limits. In this case, one maybe cut off
+            // earlier than the other. We assume that the sample is longer or the same
+            // and there for cut off earlier. So we should find the root most frame in
+            // the sample somewhere in the control.
+            c--;
+          }
+
+          for (; s >= 1 && c >= 0; s--, c--) {
+            // Next we find the first one that isn't the same which should be the
+            // frame that called our sample function and the control.
+            if (sampleLines[s] !== controlLines[c]) {
+              // In V8, the first line is describing the message but other VMs don't.
+              // If we're about to return the first line, and the control is also on the same
+              // line, that's a pretty good indicator that our sample threw at same line as
+              // the control. I.e. before we entered the sample frame. So we ignore this result.
+              // This can happen if you passed a class to function component, or non-function.
+              if (s !== 1 || c !== 1) {
+                do {
+                  s--;
+                  c--; // We may still have similar intermediate frames from the construct call.
+                  // The next one that isn't the same should be our match though.
+
+                  if (c < 0 || sampleLines[s] !== controlLines[c]) {
+                    // V8 adds a "new" prefix for native classes. Let's remove it to make it prettier.
+                    var _frame = '\n' + sampleLines[s].replace(' at new ', ' at ');
+
+                    {
+                      if (typeof fn === 'function') {
+                        componentFrameCache.set(fn, _frame);
+                      }
+                    } // Return the line we found.
+
+                    return _frame;
+                  }
+                } while (s >= 1 && c >= 0);
+              }
+
+              break;
+            }
+          }
+        }
+      } finally {
+        reentry = false;
+        {
+          ReactCurrentDispatcher.current = previousDispatcher;
+          reenableLogs();
+        }
+        Error.prepareStackTrace = previousPrepareStackTrace;
+      } // Fallback to just using the name if we couldn't make it throw.
+
+
+      var name = fn ? fn.displayName || fn.name : '';
+      var syntheticFrame = name ? describeBuiltInComponentFrame(name) : '';
+      {
+        if (typeof fn === 'function') {
+          componentFrameCache.set(fn, syntheticFrame);
+        }
+      }
+      return syntheticFrame;
+    }
+
+    function describeFunctionComponentFrame(fn, source, ownerFn) {
+      {
+        return describeNativeComponentFrame(fn, false);
+      }
+    }
+
+    function shouldConstruct(Component) {
+      var prototype = Component.prototype;
+      return !!(prototype && prototype.isReactComponent);
+    }
+
+    function describeUnknownElementTypeFrameInDEV(type, source, ownerFn) {
+      if (type == null) {
+        return '';
+      }
+
+      if (typeof type === 'function') {
+        {
+          return describeNativeComponentFrame(type, shouldConstruct(type));
+        }
+      }
+
+      if (typeof type === 'string') {
+        return describeBuiltInComponentFrame(type);
+      }
+
+      switch (type) {
+        case REACT_SUSPENSE_TYPE:
+          return describeBuiltInComponentFrame('Suspense');
+
+        case REACT_SUSPENSE_LIST_TYPE:
+          return describeBuiltInComponentFrame('SuspenseList');
+      }
+
+      if (typeof type === 'object') {
+        switch (type.$$typeof) {
+          case REACT_FORWARD_REF_TYPE:
+            return describeFunctionComponentFrame(type.render);
+
+          case REACT_MEMO_TYPE:
+            // Memo may contain any component type so we recursively resolve it.
+            return describeUnknownElementTypeFrameInDEV(type.type, source, ownerFn);
+
+          case REACT_BLOCK_TYPE:
+            return describeFunctionComponentFrame(type._render);
+
+          case REACT_LAZY_TYPE:
+            {
+              var lazyComponent = type;
+              var payload = lazyComponent._payload;
+              var init = lazyComponent._init;
+
+              try {
+                // Lazy may contain any component type so we recursively resolve it.
+                return describeUnknownElementTypeFrameInDEV(init(payload), source, ownerFn);
+              } catch (x) {}
+            }
+        }
+      }
+
+      return '';
     }
 
     var loggedTypeFailures = {};
-    ReactSharedInternals.ReactDebugCurrentFrame;
-    var currentlyValidatingElement = null;
+    var ReactDebugCurrentFrame = ReactSharedInternals.ReactDebugCurrentFrame;
 
     function setCurrentlyValidatingElement(element) {
       {
-        currentlyValidatingElement = element;
+        if (element) {
+          var owner = element._owner;
+          var stack = describeUnknownElementTypeFrameInDEV(element.type, element._source, owner ? owner.type : null);
+          ReactDebugCurrentFrame.setExtraStackFrame(stack);
+        } else {
+          ReactDebugCurrentFrame.setExtraStackFrame(null);
+        }
       }
     }
 
@@ -788,10 +1185,18 @@ if (process.env.NODE_ENV !== "production") {
     }
 
     var ReactCurrentOwner$1 = ReactSharedInternals.ReactCurrentOwner;
-    ReactSharedInternals.ReactDebugCurrentFrame;
+    var ReactDebugCurrentFrame$1 = ReactSharedInternals.ReactDebugCurrentFrame;
 
     function setCurrentlyValidatingElement$1(element) {
-      currentlyValidatingElement = element;
+      {
+        if (element) {
+          var owner = element._owner;
+          var stack = describeUnknownElementTypeFrameInDEV(element.type, element._source, owner ? owner.type : null);
+          ReactDebugCurrentFrame$1.setExtraStackFrame(stack);
+        } else {
+          ReactDebugCurrentFrame$1.setExtraStackFrame(null);
+        }
+      }
     }
 
     var propTypesMisspellWarningShown;
@@ -1784,6 +2189,9 @@ const ChessboardProvider = /*#__PURE__*/require$$0.forwardRef(({
   onPieceClick,
   onSquareClick,
   onSquareRightClick,
+  onTouchStart,
+  onTouchMove,
+  onTouchEnd,
   position,
   showBoardNotation,
   showSparePieces,
@@ -1902,6 +2310,9 @@ const ChessboardProvider = /*#__PURE__*/require$$0.forwardRef(({
       onPieceClick,
       onSquareClick,
       onSquareRightClick,
+      onTouchStart,
+      onTouchMove,
+      onTouchEnd,
       showBoardNotation,
       showSparePieces,
       snapToCursor,
@@ -2159,7 +2570,6 @@ function Square({
   const defaultSquareStyle = { ...borderRadius(customBoardStyle, square, boardOrientation),
     ...(squareColor === 'black' ? customDarkSquareStyle : customLightSquareStyle)
   };
-  console.log('square', square);
   return /*#__PURE__*/jsxRuntime.exports.jsx("div", {
     style: defaultSquareStyle,
     "data-square-color": squareColor,
@@ -2346,6 +2756,7 @@ const whiteKingStyle = {
 function Board() {
   const boardRef = require$$0.useRef();
   const [squares, setSquares] = require$$0.useState({});
+  const [rect, setRect] = require$$0.useState();
   const {
     arrows,
     boardOrientation,
@@ -2353,8 +2764,12 @@ function Board() {
     clearCurrentRightClickDown,
     customArrowColor,
     showBoardNotation,
-    currentPosition
-  } = useChessboard();
+    currentPosition,
+    onTouchStart,
+    onTouchMove,
+    onTouchEnd
+  } = useChessboard(); //TODO see if this is doing anything
+
   require$$0.useEffect(() => {
     function handleClickOutside(event) {
       if (boardRef.current && !boardRef.current.contains(event.target)) {
@@ -2367,11 +2782,26 @@ function Board() {
       document.removeEventListener('mouseup', handleClickOutside);
     };
   }, []);
+
+  const getSquare = e => {
+    const relativeX = e.changedTouches[0].clientX - rect.left;
+    const relativeY = e.changedTouches[0].clientY - rect.top;
+    const col = Math.floor(relativeX * 8 / boardWidth);
+    const row = Math.floor(relativeY * 8 / boardWidth);
+    return boardOrientation === 'black' ? `${COLUMNS[7 - col]}${row + 1}` : `${COLUMNS[col]}${8 - row}`;
+  };
+
   return boardWidth ? /*#__PURE__*/jsxRuntime.exports.jsxs("div", {
-    ref: boardRef,
+    ref: r => {
+      const newRect = r === null || r === void 0 ? void 0 : r.getBoundingClientRect();
+      if ((newRect === null || newRect === void 0 ? void 0 : newRect.top) !== (rect === null || rect === void 0 ? void 0 : rect.top) || (newRect === null || newRect === void 0 ? void 0 : newRect.bottom) !== (rect === null || rect === void 0 ? void 0 : rect.bottom) || (newRect === null || newRect === void 0 ? void 0 : newRect.left) !== (rect === null || rect === void 0 ? void 0 : rect.left) || (newRect === null || newRect === void 0 ? void 0 : newRect.right) !== (rect === null || rect === void 0 ? void 0 : rect.right)) setRect(r === null || r === void 0 ? void 0 : r.getBoundingClientRect());
+    },
     style: {
       position: 'relative'
     },
+    onTouchStart: e => onTouchStart === null || onTouchStart === void 0 ? void 0 : onTouchStart(getSquare(e)),
+    onTouchMove: e => onTouchMove === null || onTouchMove === void 0 ? void 0 : onTouchMove(getSquare(e)),
+    onTouchEnd: e => onTouchEnd === null || onTouchEnd === void 0 ? void 0 : onTouchEnd(getSquare(e)),
     children: [/*#__PURE__*/jsxRuntime.exports.jsx(Squares, {
       children: ({
         square,
