@@ -29,6 +29,40 @@ const chessboardDefaultProps = {
   snapToCursor: true
 };
 
+const startPositionObject = {
+  a8: 'bR',
+  b8: 'bN',
+  c8: 'bB',
+  d8: 'bQ',
+  e8: 'bK',
+  f8: 'bB',
+  g8: 'bN',
+  h8: 'bR',
+  a7: 'bP',
+  b7: 'bP',
+  c7: 'bP',
+  d7: 'bP',
+  e7: 'bP',
+  f7: 'bP',
+  g7: 'bP',
+  h7: 'bP',
+  a2: 'wP',
+  b2: 'wP',
+  c2: 'wP',
+  d2: 'wP',
+  e2: 'wP',
+  f2: 'wP',
+  g2: 'wP',
+  h2: 'wP',
+  a1: 'wR',
+  b1: 'wN',
+  c1: 'wB',
+  d1: 'wQ',
+  e1: 'wK',
+  f1: 'wB',
+  g1: 'wN',
+  h1: 'wR'
+};
 const whiteColumnValues = {
   a: 0,
   b: 1,
@@ -61,6 +95,16 @@ const getRelativeCoords = (boardOrientation, boardWidth, square) => {
     x,
     y
   };
+};
+const isDifferentFromStart = newPosition => {
+  let isDifferent = false;
+  Object.keys(startPositionObject).forEach(square => {
+    if (newPosition[square] !== startPositionObject[square]) isDifferent = true;
+  });
+  Object.keys(newPosition).forEach(square => {
+    if (startPositionObject[square] !== newPosition[square]) isDifferent = true;
+  });
+  return isDifferent;
 };
 const getPositionDifferences = (currentPosition, newPosition) => {
   const difference = {
@@ -2220,7 +2264,7 @@ const ChessboardProvider = /*#__PURE__*/forwardRef(({
 
     const newPosition = convertPositionToObject(position);
     const differences = getPositionDifferences(currentPosition, newPosition);
-    ((_Object$keys = Object.keys(differences.added)) === null || _Object$keys === void 0 ? void 0 : _Object$keys.length) <= 2 ? (_Object$entries = Object.entries(differences.added)) === null || _Object$entries === void 0 ? void 0 : (_Object$entries$ = _Object$entries[0]) === null || _Object$entries$ === void 0 ? void 0 : _Object$entries$[1][0] : undefined; // external move has come in before animation is over
+    const newPieceColour = ((_Object$keys = Object.keys(differences.added)) === null || _Object$keys === void 0 ? void 0 : _Object$keys.length) <= 2 ? (_Object$entries = Object.entries(differences.added)) === null || _Object$entries === void 0 ? void 0 : (_Object$entries$ = _Object$entries[0]) === null || _Object$entries$ === void 0 ? void 0 : _Object$entries$[1][0] : undefined; // external move has come in before animation is over
     // cancel animation and immediately update position
 
     if (waitingForAnimation) {
@@ -2230,6 +2274,25 @@ const ChessboardProvider = /*#__PURE__*/forwardRef(({
       if (previousTimeout) {
         clearTimeout(previousTimeout);
       }
+    } else {
+      // move was made by external position change
+      // if position === start then don't override newPieceColour
+      // needs isDifferentFromStart in scenario where premoves have been cleared upon board reset but first move is made by computer, the last move colour would need to be updated
+      if (isDifferentFromStart(newPosition) && lastPieceColour !== undefined) {
+        setLastPieceColour(newPieceColour);
+      } else {
+        // position === start, likely a board reset
+        setLastPieceColour(undefined);
+      }
+
+      setPositionDifferences(differences); // animate external move
+
+      setWaitingForAnimation(true);
+      const newTimeout = setTimeout(() => {
+        setCurrentPosition(newPosition);
+        setWaitingForAnimation(false);
+      }, animationDuration);
+      setPreviousTimeout(newTimeout);
     } // inform latest position information
 
 
@@ -2790,21 +2853,19 @@ function Board() {
         squareColor,
         col,
         row
-      }) => {
-        return /*#__PURE__*/jsxRuntime.exports.jsxs(Square, {
+      }) => /*#__PURE__*/jsxRuntime.exports.jsxs(Square, {
+        square: square,
+        squareColor: squareColor,
+        setSquares: setSquares,
+        children: [currentPosition[square] && /*#__PURE__*/jsxRuntime.exports.jsx(Piece, {
+          piece: currentPosition[square],
           square: square,
-          squareColor: squareColor,
-          setSquares: setSquares,
-          children: [currentPosition[square] && /*#__PURE__*/jsxRuntime.exports.jsx(Piece, {
-            piece: currentPosition[square],
-            square: square,
-            squares: squares
-          }), showBoardNotation && /*#__PURE__*/jsxRuntime.exports.jsx(Notation, {
-            row: row,
-            col: col
-          })]
-        }, `${col}${row}`);
-      }
+          squares: squares
+        }), showBoardNotation && /*#__PURE__*/jsxRuntime.exports.jsx(Notation, {
+          row: row,
+          col: col
+        })]
+      }, `${col}${row}`)
     }), /*#__PURE__*/jsxRuntime.exports.jsx("svg", {
       width: boardWidth,
       height: boardWidth,

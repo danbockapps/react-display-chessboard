@@ -57,14 +57,12 @@ export function Board() {
       onTouchEnd={(e) => onTouchEnd?.(getSquare(e))}
     >
       <Squares>
-        {({ square, squareColor, col, row }) => {
-          return (
-            <Square key={`${col}${row}`} square={square} squareColor={squareColor} setSquares={setSquares}>
-              {currentPosition[square] && <Piece piece={currentPosition[square]} square={square} squares={squares} />}
-              {showBoardNotation && <Notation row={row} col={col} />}
-            </Square>
-          );
-        }}
+        {({ square, squareColor, col, row }) => (
+          <Square key={`${col}${row}`} square={square} squareColor={squareColor} setSquares={setSquares}>
+            {currentPosition[square] && <Piece piece={currentPosition[square]} square={square} squares={squares} />}
+            {showBoardNotation && <Notation row={row} col={col} />}
+          </Square>
+        )}
       </Squares>
       <svg
         width={boardWidth}

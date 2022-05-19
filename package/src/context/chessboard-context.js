@@ -91,7 +91,25 @@ export const ChessboardProvider = forwardRef(
           clearTimeout(previousTimeout);
         }
       } else {
-        // move was made using drag and drop
+        // move was made by external position change
+
+        // if position === start then don't override newPieceColour
+        // needs isDifferentFromStart in scenario where premoves have been cleared upon board reset but first move is made by computer, the last move colour would need to be updated
+        if (isDifferentFromStart(newPosition) && lastPieceColour !== undefined) {
+          setLastPieceColour(newPieceColour);
+        } else {
+          // position === start, likely a board reset
+          setLastPieceColour(undefined);
+        }
+        setPositionDifferences(differences);
+
+        // animate external move
+        setWaitingForAnimation(true);
+        const newTimeout = setTimeout(() => {
+          setCurrentPosition(newPosition);
+          setWaitingForAnimation(false);
+        }, animationDuration);
+        setPreviousTimeout(newTimeout);
       }
 
       // inform latest position information
