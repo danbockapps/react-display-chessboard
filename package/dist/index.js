@@ -2884,7 +2884,7 @@ function Board() {
         pointerEvents: 'none',
         zIndex: '10'
       },
-      children: arrows.map(arrow => {
+      children: arrows.map((arrow, i) => {
         const from = getRelativeCoords(boardOrientation, boardWidth, arrow[0]);
         const to = getRelativeCoords(boardOrientation, boardWidth, arrow[1]);
         return /*#__PURE__*/jsxRuntime.exports.jsxs(require$$0.Fragment, {
@@ -2914,7 +2914,7 @@ function Board() {
             },
             markerEnd: "url(#arrowhead)"
           })]
-        }, `${arrow[0]}-${arrow[1]}`);
+        }, i);
       })
     })]
   }) : /*#__PURE__*/jsxRuntime.exports.jsx(WhiteKing, {});
