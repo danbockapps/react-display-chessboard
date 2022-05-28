@@ -2894,6 +2894,7 @@ const Chessboard = /*#__PURE__*/forwardRef((props, ref) => {
       ref: ref,
       ...props,
       children: /*#__PURE__*/jsxRuntime.exports.jsx("div", {
+        className: "react-display-chessboard",
         children: /*#__PURE__*/jsxRuntime.exports.jsx(Board, {})
       })
     })
