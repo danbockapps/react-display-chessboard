@@ -2866,13 +2866,13 @@ function Board() {
           children: [/*#__PURE__*/jsxRuntime.exports.jsx("defs", {
             children: /*#__PURE__*/jsxRuntime.exports.jsx("marker", {
               id: "arrowhead",
-              markerWidth: "2",
-              markerHeight: "2.5",
-              refX: "1.25",
-              refY: "1.25",
+              markerWidth: "3.2",
+              markerHeight: "4",
+              refX: "2",
+              refY: "2",
               orient: "auto",
               children: /*#__PURE__*/jsxRuntime.exports.jsx("polygon", {
-                points: "0 0, 2 1.25, 0 2.5",
+                points: "0 0, 3.2 2, 0 4",
                 style: {
                   fill: customArrowColor
                 }
@@ -2885,7 +2885,8 @@ function Board() {
             y2: to.y,
             style: {
               stroke: customArrowColor,
-              strokeWidth: boardWidth / 36
+              opacity: 0.9,
+              strokeWidth: boardWidth / 60
             },
             markerEnd: "url(#arrowhead)"
           })]
