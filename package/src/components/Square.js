@@ -7,19 +7,15 @@ export function Square({ square, squareColor, setSquares, children }) {
   const {
     boardWidth,
     boardOrientation,
-    clearArrows,
-    currentPosition,
     customBoardStyle,
     customDarkSquareStyle,
     customLightSquareStyle,
     customSquareStyles,
-    lastPieceColour,
     onMouseOutSquare,
     onMouseOverSquare,
     onRightClickDown,
     onRightClickUp,
-    onSquareClick,
-    waitingForAnimation
+    onSquareClick
   } = useChessboard();
 
   useEffect(() => {
@@ -47,7 +43,6 @@ export function Square({ square, squareColor, setSquares, children }) {
       }}
       onClick={() => {
         onSquareClick(square);
-        clearArrows();
       }}
       onContextMenu={(e) => {
         e.preventDefault();
