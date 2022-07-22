@@ -88,6 +88,8 @@ export type CurrentPosition = {
   [key in Square]: Pieces;
 };
 
+export type Arrow = { color: string; start: Square; end: Square };
+
 export interface ChessBoardProps {
   /**
    * Time in milliseconds for piece to slide to target square. Only used when the position is programmatically changed. If a new position is set before the animation is complete, the board will cancel the current animation and snap to the new position.
@@ -106,13 +108,9 @@ export interface ChessBoardProps {
    */
   boardWidth?: number;
   /**
-   * Array of custom arrows to draw on the board. Each arrow within the array must be an array of length 2 with strings denoting the from and to square to draw the arrow e.g. [ ['a3', 'a5'], ['g1', 'f3'] ].
+   * Array of custom arrows to draw on the board.
    */
-  customArrows?: string[][];
-  /**
-   * String with rgb or hex value to colour drawn arrows.
-   */
-  customArrowColor?: string;
+  customArrows?: Arrow[];
   /**
    * Custom board style object e.g. { borderRadius: '5px', boxShadow: '0 5px 15px rgba(0, 0, 0, 0.5 '}.
    */

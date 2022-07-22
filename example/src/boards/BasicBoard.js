@@ -2,7 +2,7 @@ import { Chessboard } from 'react-chessboard'
 import { useEffect, useState } from 'react'
 
 export default function BasicBoard({ boardWidth }) {
-  const [currentArrow, setCurrentArrow] = useState()
+  const [currentArrows, setCurrentArrows] = useState([])
   const [selectedSquare, setSelectedSquare] = useState()
 
   const [position, setPosition] = useState(
@@ -20,13 +20,23 @@ export default function BasicBoard({ boardWidth }) {
     <div>
       <Chessboard
         {...{ boardWidth, selectedSquare, position }}
-        onTouchEnd={s => setCurrentArrow([currentArrow[0], s])}
-        onTouchMove={s => setCurrentArrow([currentArrow[0], s])}
-        onTouchStart={s => setCurrentArrow([s, ''])}
+        onTouchEnd={end => {
+          const { start, color } = currentArrows[currentArrows.length - 1]
+          return setCurrentArrows([
+            ...currentArrows.filter((c, i) => i !== currentArrows.length - 1),
+            { start, end, color },
+          ])
+        }}
+        onTouchStart={start =>
+          setCurrentArrows([...currentArrows, { start, end: '', color: getRandomColor() }])
+        }
         onSquareClick={setSelectedSquare}
-        customArrows={currentArrow?.[0] && currentArrow?.[1] ? [currentArrow] : undefined}
+        customArrows={currentArrows.filter(c => c.start && c.end && c.color)}
         customSquareStyles={{ [selectedSquare]: { backgroundColor: 'mintcream' } }}
       />
     </div>
   )
 }
+
+const random0255 = () => `${Math.floor(Math.random() * 256)}`
+const getRandomColor = () => `rgb(${random0255()},${random0255()},${random0255()})`

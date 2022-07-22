@@ -6,7 +6,6 @@ export const chessboardDefaultProps = {
   boardOrientation: 'white',
   boardWidth: 560,
   customArrows: [],
-  customArrowColor: 'rgb(255,170,0)',
   customBoardStyle: {},
   customDarkSquareStyle: { backgroundColor: '#B58863' },
   customLightSquareStyle: { backgroundColor: '#F0D9B5' },

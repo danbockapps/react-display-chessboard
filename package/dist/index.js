@@ -15,7 +15,6 @@ const chessboardDefaultProps = {
   boardOrientation: 'white',
   boardWidth: 560,
   customArrows: [],
-  customArrowColor: 'rgb(255,170,0)',
   customBoardStyle: {},
   customDarkSquareStyle: {
     backgroundColor: '#B58863'
@@ -2200,7 +2199,6 @@ const ChessboardProvider = /*#__PURE__*/require$$0.forwardRef(({
   boardOrientation,
   boardWidth,
   customArrows,
-  customArrowColor,
   customBoardStyle,
   customDarkSquareStyle,
   customLightSquareStyle,
@@ -2292,7 +2290,6 @@ const ChessboardProvider = /*#__PURE__*/require$$0.forwardRef(({
       animationDuration,
       boardOrientation,
       boardWidth,
-      customArrowColor,
       customBoardStyle,
       customDarkSquareStyle,
       customLightSquareStyle,
@@ -2738,7 +2735,6 @@ function Board() {
     customArrows,
     boardOrientation,
     boardWidth,
-    customArrowColor,
     showBoardNotation,
     currentPosition,
     onTouchStart,
@@ -2796,13 +2792,15 @@ function Board() {
         pointerEvents: 'none',
         zIndex: '10'
       },
-      children: customArrows.map((arrow, i) => {
-        const from = getRelativeCoords(boardOrientation, boardWidth, arrow[0]);
-        const to = getRelativeCoords(boardOrientation, boardWidth, arrow[1]);
+      children: customArrows.map((arrow, key) => {
+        const from = getRelativeCoords(boardOrientation, boardWidth, arrow.start);
+        const to = getRelativeCoords(boardOrientation, boardWidth, arrow.end);
+        const id = `arrowhead${key}`;
         return /*#__PURE__*/jsxRuntime.exports.jsxs(require$$0.Fragment, {
+          key,
           children: [/*#__PURE__*/jsxRuntime.exports.jsx("defs", {
             children: /*#__PURE__*/jsxRuntime.exports.jsx("marker", {
-              id: "arrowhead",
+              id,
               markerWidth: "3.2",
               markerHeight: "4",
               refX: "2",
@@ -2811,7 +2809,7 @@ function Board() {
               children: /*#__PURE__*/jsxRuntime.exports.jsx("polygon", {
                 points: "0 0, 3.2 2, 0 4",
                 style: {
-                  fill: customArrowColor
+                  fill: arrow.color
                 }
               })
             })
@@ -2821,13 +2819,13 @@ function Board() {
             x2: to.x,
             y2: to.y,
             style: {
-              stroke: customArrowColor,
+              stroke: arrow.color,
               opacity: 0.9,
               strokeWidth: boardWidth / 60
             },
-            markerEnd: "url(#arrowhead)"
+            markerEnd: `url(#${id})`
           })]
-        }, i);
+        });
       })
     })]
   }) : /*#__PURE__*/jsxRuntime.exports.jsx(WhiteKing, {});

@@ -18,7 +18,6 @@ export function Board() {
     customArrows,
     boardOrientation,
     boardWidth,
-    customArrowColor,
     showBoardNotation,
     currentPosition,
     onTouchStart,
@@ -68,15 +67,16 @@ export function Board() {
         height={boardWidth}
         style={{ position: 'absolute', top: '0', left: '0', pointerEvents: 'none', zIndex: '10' }}
       >
-        {customArrows.map((arrow, i) => {
-          const from = getRelativeCoords(boardOrientation, boardWidth, arrow[0]);
-          const to = getRelativeCoords(boardOrientation, boardWidth, arrow[1]);
+        {customArrows.map((arrow, key) => {
+          const from = getRelativeCoords(boardOrientation, boardWidth, arrow.start);
+          const to = getRelativeCoords(boardOrientation, boardWidth, arrow.end);
+          const id = `arrowhead${key}`;
 
           return (
-            <Fragment key={i}>
+            <Fragment {...{ key }}>
               <defs>
-                <marker id="arrowhead" markerWidth="3.2" markerHeight="4" refX="2" refY="2" orient="auto">
-                  <polygon points="0 0, 3.2 2, 0 4" style={{ fill: customArrowColor }} />
+                <marker {...{ id }} markerWidth="3.2" markerHeight="4" refX="2" refY="2" orient="auto">
+                  <polygon points="0 0, 3.2 2, 0 4" style={{ fill: arrow.color }} />
                 </marker>
               </defs>
               <line
@@ -84,8 +84,8 @@ export function Board() {
                 y1={from.y}
                 x2={to.x}
                 y2={to.y}
-                style={{ stroke: customArrowColor, opacity: 0.9, strokeWidth: boardWidth / 60 }}
-                markerEnd="url(#arrowhead)"
+                style={{ stroke: arrow.color, opacity: 0.9, strokeWidth: boardWidth / 60 }}
+                markerEnd={`url(#${id})`}
               />
             </Fragment>
           );
