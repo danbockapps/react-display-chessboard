@@ -13,8 +13,6 @@ export function Square({ square, squareColor, setSquares, children }) {
     customSquareStyles,
     onMouseOutSquare,
     onMouseOverSquare,
-    onRightClickDown,
-    onRightClickUp,
     onSquareClick
   } = useChessboard();
 
@@ -35,12 +33,6 @@ export function Square({ square, squareColor, setSquares, children }) {
       data-square={square}
       onMouseOver={() => onMouseOverSquare(square)}
       onMouseOut={() => onMouseOutSquare(square)}
-      onMouseDown={(e) => {
-        if (e.button === 2) onRightClickDown(square);
-      }}
-      onMouseUp={(e) => {
-        if (e.button === 2) onRightClickUp(square);
-      }}
       onClick={() => {
         onSquareClick(square);
       }}

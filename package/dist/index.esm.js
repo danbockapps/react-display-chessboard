@@ -25,7 +25,6 @@ const chessboardDefaultProps = {
   onSquareRightClick: () => {},
   position: 'start',
   showBoardNotation: true,
-  // showSparePieces: false,
   snapToCursor: true
 };
 
@@ -2221,9 +2220,7 @@ const ChessboardProvider = /*#__PURE__*/forwardRef(({
 
   const [lastPieceColour, setLastPieceColour] = useState(undefined); // current right mouse down square
 
-  const [currentRightClickDown, setCurrentRightClickDown] = useState(); // current arrows
-
-  const [arrows, setArrows] = useState([]); // chess pieces/styling
+  useState(); // chess pieces/styling
 
   const [chessPieces, setChessPieces] = useState({ ...defaultPieces,
     ...customPieces
@@ -2276,59 +2273,12 @@ const ChessboardProvider = /*#__PURE__*/forwardRef(({
     } // inform latest position information
 
 
-    getPositionObject(newPosition); // clear arrows
-
-    clearArrows(); // clear timeout on unmount
+    getPositionObject(newPosition); // clear timeout on unmount
 
     return () => {
       clearTimeout(previousTimeout);
     };
-  }, [position]); // handle external arrows change
-
-  useEffect(() => {
-    setArrows(customArrows);
-  }, [customArrows]);
-
-  function onRightClickDown(square) {
-    setCurrentRightClickDown(square);
-  }
-
-  function onRightClickUp(square) {
-    if (!areArrowsAllowed) return;
-
-    if (currentRightClickDown) {
-      // same square, don't draw an arrow
-      if (currentRightClickDown === square) {
-        setCurrentRightClickDown(null);
-        onSquareRightClick(square);
-        return;
-      } // if arrow already exists then it needs to be removed
-
-
-      for (const i in arrows) {
-        if (arrows[i][0] === currentRightClickDown && arrows[i][1] === square) {
-          setArrows(oldArrows => {
-            const newArrows = [...oldArrows];
-            newArrows.splice(i, 1);
-            return newArrows;
-          });
-          return;
-        }
-      } // different square, draw an arrow
-
-
-      setArrows(oldArrows => [...oldArrows, [currentRightClickDown, square]]);
-    } else setCurrentRightClickDown(null);
-  }
-
-  function clearCurrentRightClickDown() {
-    setCurrentRightClickDown(null);
-  }
-
-  function clearArrows() {
-    setArrows([]);
-  }
-
+  }, [position]);
   return /*#__PURE__*/jsxRuntime.exports.jsx(ChessboardContext.Provider, {
     value: {
       animationDuration,
@@ -2351,14 +2301,10 @@ const ChessboardProvider = /*#__PURE__*/forwardRef(({
       showBoardNotation,
       showSparePieces,
       snapToCursor,
-      arrows,
+      customArrows,
       chessPieces,
-      clearArrows,
-      clearCurrentRightClickDown,
       currentPosition,
       lastPieceColour,
-      onRightClickDown,
-      onRightClickUp,
       positionDifferences,
       setChessPieces,
       setCurrentPosition,
@@ -2582,8 +2528,6 @@ function Square({
     customSquareStyles,
     onMouseOutSquare,
     onMouseOverSquare,
-    onRightClickDown,
-    onRightClickUp,
     onSquareClick
   } = useChessboard();
   useEffect(() => {
@@ -2607,12 +2551,6 @@ function Square({
     "data-square": square,
     onMouseOver: () => onMouseOverSquare(square),
     onMouseOut: () => onMouseOutSquare(square),
-    onMouseDown: e => {
-      if (e.button === 2) onRightClickDown(square);
-    },
-    onMouseUp: e => {
-      if (e.button === 2) onRightClickUp(square);
-    },
     onClick: () => {
       onSquareClick(square);
     },
@@ -2789,10 +2727,9 @@ function Board() {
   const [squares, setSquares] = useState({});
   const [rect, setRect] = useState();
   const {
-    arrows,
+    customArrows,
     boardOrientation,
     boardWidth,
-    clearCurrentRightClickDown,
     customArrowColor,
     showBoardNotation,
     currentPosition,
@@ -2851,7 +2788,7 @@ function Board() {
         pointerEvents: 'none',
         zIndex: '10'
       },
-      children: arrows.map((arrow, i) => {
+      children: customArrows.map((arrow, i) => {
         const from = getRelativeCoords(boardOrientation, boardWidth, arrow[0]);
         const to = getRelativeCoords(boardOrientation, boardWidth, arrow[1]);
         return /*#__PURE__*/jsxRuntime.exports.jsxs(Fragment, {

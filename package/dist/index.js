@@ -33,7 +33,6 @@ const chessboardDefaultProps = {
   onSquareRightClick: () => {},
   position: 'start',
   showBoardNotation: true,
-  // showSparePieces: false,
   snapToCursor: true
 };
 
@@ -2229,9 +2228,7 @@ const ChessboardProvider = /*#__PURE__*/require$$0.forwardRef(({
 
   const [lastPieceColour, setLastPieceColour] = require$$0.useState(undefined); // current right mouse down square
 
-  const [currentRightClickDown, setCurrentRightClickDown] = require$$0.useState(); // current arrows
-
-  const [arrows, setArrows] = require$$0.useState([]); // chess pieces/styling
+  require$$0.useState(); // chess pieces/styling
 
   const [chessPieces, setChessPieces] = require$$0.useState({ ...defaultPieces,
     ...customPieces
@@ -2284,59 +2281,12 @@ const ChessboardProvider = /*#__PURE__*/require$$0.forwardRef(({
     } // inform latest position information
 
 
-    getPositionObject(newPosition); // clear arrows
-
-    clearArrows(); // clear timeout on unmount
+    getPositionObject(newPosition); // clear timeout on unmount
 
     return () => {
       clearTimeout(previousTimeout);
     };
-  }, [position]); // handle external arrows change
-
-  require$$0.useEffect(() => {
-    setArrows(customArrows);
-  }, [customArrows]);
-
-  function onRightClickDown(square) {
-    setCurrentRightClickDown(square);
-  }
-
-  function onRightClickUp(square) {
-    if (!areArrowsAllowed) return;
-
-    if (currentRightClickDown) {
-      // same square, don't draw an arrow
-      if (currentRightClickDown === square) {
-        setCurrentRightClickDown(null);
-        onSquareRightClick(square);
-        return;
-      } // if arrow already exists then it needs to be removed
-
-
-      for (const i in arrows) {
-        if (arrows[i][0] === currentRightClickDown && arrows[i][1] === square) {
-          setArrows(oldArrows => {
-            const newArrows = [...oldArrows];
-            newArrows.splice(i, 1);
-            return newArrows;
-          });
-          return;
-        }
-      } // different square, draw an arrow
-
-
-      setArrows(oldArrows => [...oldArrows, [currentRightClickDown, square]]);
-    } else setCurrentRightClickDown(null);
-  }
-
-  function clearCurrentRightClickDown() {
-    setCurrentRightClickDown(null);
-  }
-
-  function clearArrows() {
-    setArrows([]);
-  }
-
+  }, [position]);
   return /*#__PURE__*/jsxRuntime.exports.jsx(ChessboardContext.Provider, {
     value: {
       animationDuration,
@@ -2359,14 +2309,10 @@ const ChessboardProvider = /*#__PURE__*/require$$0.forwardRef(({
       showBoardNotation,
       showSparePieces,
       snapToCursor,
-      arrows,
+      customArrows,
       chessPieces,
-      clearArrows,
-      clearCurrentRightClickDown,
       currentPosition,
       lastPieceColour,
-      onRightClickDown,
-      onRightClickUp,
       positionDifferences,
       setChessPieces,
       setCurrentPosition,
@@ -2590,8 +2536,6 @@ function Square({
     customSquareStyles,
     onMouseOutSquare,
     onMouseOverSquare,
-    onRightClickDown,
-    onRightClickUp,
     onSquareClick
   } = useChessboard();
   require$$0.useEffect(() => {
@@ -2615,12 +2559,6 @@ function Square({
     "data-square": square,
     onMouseOver: () => onMouseOverSquare(square),
     onMouseOut: () => onMouseOutSquare(square),
-    onMouseDown: e => {
-      if (e.button === 2) onRightClickDown(square);
-    },
-    onMouseUp: e => {
-      if (e.button === 2) onRightClickUp(square);
-    },
     onClick: () => {
       onSquareClick(square);
     },
@@ -2797,10 +2735,9 @@ function Board() {
   const [squares, setSquares] = require$$0.useState({});
   const [rect, setRect] = require$$0.useState();
   const {
-    arrows,
+    customArrows,
     boardOrientation,
     boardWidth,
-    clearCurrentRightClickDown,
     customArrowColor,
     showBoardNotation,
     currentPosition,
@@ -2859,7 +2796,7 @@ function Board() {
         pointerEvents: 'none',
         zIndex: '10'
       },
-      children: arrows.map((arrow, i) => {
+      children: customArrows.map((arrow, i) => {
         const from = getRelativeCoords(boardOrientation, boardWidth, arrow[0]);
         const to = getRelativeCoords(boardOrientation, boardWidth, arrow[1]);
         return /*#__PURE__*/jsxRuntime.exports.jsxs(require$$0.Fragment, {

@@ -58,8 +58,6 @@ export const ChessboardProvider = forwardRef(
 
     // current right mouse down square
     const [currentRightClickDown, setCurrentRightClickDown] = useState();
-    // current arrows
-    const [arrows, setArrows] = useState([]);
 
     // chess pieces/styling
     const [chessPieces, setChessPieces] = useState({ ...defaultPieces, ...customPieces });
@@ -114,58 +112,12 @@ export const ChessboardProvider = forwardRef(
 
       // inform latest position information
       getPositionObject(newPosition);
-      // clear arrows
-      clearArrows();
 
       // clear timeout on unmount
       return () => {
         clearTimeout(previousTimeout);
       };
     }, [position]);
-
-    // handle external arrows change
-    useEffect(() => {
-      setArrows(customArrows);
-    }, [customArrows]);
-
-    function onRightClickDown(square) {
-      setCurrentRightClickDown(square);
-    }
-
-    function onRightClickUp(square) {
-      if (!areArrowsAllowed) return;
-      if (currentRightClickDown) {
-        // same square, don't draw an arrow
-        if (currentRightClickDown === square) {
-          setCurrentRightClickDown(null);
-          onSquareRightClick(square);
-          return;
-        }
-
-        // if arrow already exists then it needs to be removed
-        for (const i in arrows) {
-          if (arrows[i][0] === currentRightClickDown && arrows[i][1] === square) {
-            setArrows((oldArrows) => {
-              const newArrows = [...oldArrows];
-              newArrows.splice(i, 1);
-              return newArrows;
-            });
-            return;
-          }
-        }
-
-        // different square, draw an arrow
-        setArrows((oldArrows) => [...oldArrows, [currentRightClickDown, square]]);
-      } else setCurrentRightClickDown(null);
-    }
-
-    function clearCurrentRightClickDown() {
-      setCurrentRightClickDown(null);
-    }
-
-    function clearArrows() {
-      setArrows([]);
-    }
 
     return (
       <ChessboardContext.Provider
@@ -191,14 +143,10 @@ export const ChessboardProvider = forwardRef(
           showSparePieces,
           snapToCursor,
 
-          arrows,
+          customArrows,
           chessPieces,
-          clearArrows,
-          clearCurrentRightClickDown,
           currentPosition,
           lastPieceColour,
-          onRightClickDown,
-          onRightClickUp,
           positionDifferences,
           setChessPieces,
           setCurrentPosition,

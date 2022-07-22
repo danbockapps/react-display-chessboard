@@ -15,10 +15,9 @@ export function Board() {
   const [rect, setRect] = useState();
 
   const {
-    arrows,
+    customArrows,
     boardOrientation,
     boardWidth,
-    clearCurrentRightClickDown,
     customArrowColor,
     showBoardNotation,
     currentPosition,
@@ -69,7 +68,7 @@ export function Board() {
         height={boardWidth}
         style={{ position: 'absolute', top: '0', left: '0', pointerEvents: 'none', zIndex: '10' }}
       >
-        {arrows.map((arrow, i) => {
+        {customArrows.map((arrow, i) => {
           const from = getRelativeCoords(boardOrientation, boardWidth, arrow[0]);
           const to = getRelativeCoords(boardOrientation, boardWidth, arrow[1]);
 
