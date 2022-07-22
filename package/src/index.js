@@ -9,9 +9,7 @@ export const Chessboard = forwardRef((props, ref) => {
     <ErrorBoundary>
       <ChessboardProvider ref={ref} {...props}>
         <div className="react-display-chessboard">
-          {/* {props.showSparePieces && <SparePieces.Top />} */}
           <Board />
-          {/* {props.showSparePieces && <SparePieces.Bottom />} */}
         </div>
       </ChessboardProvider>
     </ErrorBoundary>

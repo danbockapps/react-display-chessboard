@@ -20,6 +20,5 @@ export const chessboardDefaultProps = {
   onSquareRightClick: () => {},
   position: 'start',
   showBoardNotation: true,
-  // showSparePieces: false,
   snapToCursor: true
 };
